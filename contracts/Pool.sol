@@ -83,38 +83,41 @@ contract Pool is Ownable, IPool {
   }
 
   receive() external payable {
-    require(msg.value >= _minInvest, "send matic");
+    require(msg.value >= _minInvest, "amount is too small");
     _initInvestment(msg.sender, msg.value, msg.value > 0);
   }
 
-  function initSecureInvestment(
-    address investor,
-    uint256 amount,
-    uint256[] memory outputs
-  ) public {
+  function initSecureInvestment(uint256 amount, uint256[] memory outputs)
+    external
+    payable
+  {
     require(amount >= _minInvest, "amount is too small");
 
-    PoolInfo memory _poolInfo = poolInfo;
-
-    bool priceChanged = false;
-    for (uint8 i = 0; i < _poolInfo.poolSize; i++) {
-      uint256 inputAmountForToken = (amount * _poolInfo.poolDistribution[i]) /
-        100;
-
-      uint256 amountOfToken = _quote(
-        _poolInfo.entryAsset,
-        _poolInfo.poolTokens[i],
-        inputAmountForToken
-      );
-
-      if (amountOfToken != outputs[i]) {
-        priceChanged = true;
-        break;
-      }
+    if (msg.value > 0) {
+      require(msg.value == amount, "value is too small");
     }
-    require(priceChanged == false, "token price changed");
 
-    _initInvestment(investor, amount, false);
+    // PoolInfo memory _poolInfo = poolInfo;
+
+    // bool priceChanged = false;
+    // for (uint256 i = 0; i < _poolInfo.poolSize; i++) {
+    //   uint256 inputAmountForToken = (amount * _poolInfo.poolDistribution[i]) /
+    //     100;
+
+    //   uint256 amountOfToken = _quote(
+    //     _poolInfo.entryAsset,
+    //     _poolInfo.poolTokens[i],
+    //     inputAmountForToken
+    //   );
+
+    //   if (amountOfToken != outputs[i]) {
+    //     priceChanged = true;
+    //     break;
+    //   }
+    // }
+    // require(priceChanged == false, "token price changed");
+
+    _initInvestment(msg.sender, amount, msg.value > 0);
   }
 
   function _initInvestment(
@@ -195,9 +198,7 @@ contract Pool is Ownable, IPool {
     );
   }
 
-  function withdraw(uint256 investmentId) public {
-    // require(investmentId >= 0, "invalid investment Id");
-
+  function withdraw(uint256 investmentId) external {
     InvestmentData memory _investData = _investmentDataByUser[msg.sender][
       investmentId
     ];
@@ -229,7 +230,6 @@ contract Pool is Ownable, IPool {
 
       totalSuccessFee += successFee;
 
-      // TODO: If WMATIC - don't work (i think)
       _poolInfo.entryAsset.safeTransferFrom(
         address(this),
         _poolInfo.feeAddress,
@@ -248,14 +248,24 @@ contract Pool is Ownable, IPool {
     emit UnInvested(msg.sender, finalEntryAssetAmount, investmentId);
   }
 
-  function rebalance(uint16 investmentId) public {
-    // require(investmentId >= 0, "invalid investment Id");
-
+  function toggleRebalance(uint256 investmentId) external {
     InvestmentData memory _investData = _investmentDataByUser[msg.sender][
       investmentId
     ];
 
-    // TODO do deactivator for rebalance
+    require(_investData.active, "Investment not active");
+
+    _investmentDataByUser[msg.sender][investmentId]
+      .rebalanceEnabled = !_investData.rebalanceEnabled;
+
+    // TODO event
+  }
+
+  function rebalance(uint256 investmentId) external {
+    InvestmentData memory _investData = _investmentDataByUser[msg.sender][
+      investmentId
+    ];
+
     require(_investData.active, "Investment not active");
     require(_investData.rebalanceEnabled, "rebalance not enabled");
 
@@ -269,7 +279,7 @@ contract Pool is Ownable, IPool {
         continue;
       }
 
-      _investmentDataByUser[msg.sender][investmentId].tokenBalances[i] = 0;
+      // _investmentDataByUser[msg.sender][investmentId].tokenBalances[i] = 0;
       uint256 amount = _tokensToEntryAsset(timestamp, tokenBalance, i);
 
       allSwappedCurrency += amount;
@@ -277,7 +287,7 @@ contract Pool is Ownable, IPool {
 
     _poolInfo.entryAsset.safeApprove(address(swapRouter), allSwappedCurrency);
 
-    uint256[] memory tokenBalances = new uint256[](_poolInfo.poolSize);
+    // uint256[] memory tokenBalances = new uint256[](_poolInfo.poolSize);
     for (uint256 i = 0; i < _poolInfo.poolSize; ++i) {
       uint256 amountForToken = (allSwappedCurrency *
         _poolInfo.poolDistribution[i]) / 100;
@@ -294,13 +304,16 @@ contract Pool is Ownable, IPool {
         false
       );
 
-      tokenBalances[i] = tokenBalance;
+      // tokenBalances[i] = tokenBalance;
 
-      // poolTokensBalances[i] = poolTokensBalances[i] + tokenBalance;
-      _investData.tokenBalances[i] += tokenBalance;
+      _investData.tokenBalances[i] = tokenBalance;
     }
 
-    _investmentDataByUser[msg.sender][investmentId] = _investData;
+    _investmentDataByUser[msg.sender][investmentId]
+      .receivedCurrency = allSwappedCurrency;
+
+    _investmentDataByUser[msg.sender][investmentId].tokenBalances = _investData
+      .tokenBalances;
 
     emit Rebalanced(
       msg.sender,

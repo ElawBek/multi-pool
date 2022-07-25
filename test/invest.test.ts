@@ -14,7 +14,7 @@ import {
   deployFixture,
 } from "./fixtures";
 
-import { Pool } from "../typechain-types";
+import { Pool, IERC20__factory } from "../typechain-types";
 
 describe("#invest", () => {
   let pool: Pool;
@@ -27,7 +27,37 @@ describe("#invest", () => {
 
   it("invest", async () => {
     console.log(await owner.getBalance());
-    await alice.sendTransaction({ to: pool.address, value: parseEther("1") });
+
+    await pool.initSecureInvestment(parseEther("1"), [], {
+      value: parseEther("1"),
+    });
+
     console.log(await owner.getBalance());
+
+    const weth = IERC20__factory.connect(WETH, owner);
+    const usdc = IERC20__factory.connect(USDC, owner);
+    const aave = IERC20__factory.connect(AAVE, owner);
+    const wmatic = IERC20__factory.connect(WMATIC, owner);
+
+    console.log(await weth.balanceOf(pool.address));
+    console.log(await usdc.balanceOf(pool.address));
+    console.log(await aave.balanceOf(pool.address));
+
+    await pool.rebalance(0);
+
+    console.log(await weth.balanceOf(pool.address));
+    console.log(await usdc.balanceOf(pool.address));
+    console.log(await aave.balanceOf(pool.address));
+
+    await pool.toggleRebalance(0);
+
+    await expect(pool.rebalance(0)).to.reverted;
+
+    await pool.withdraw(0);
+
+    console.log(await weth.balanceOf(pool.address));
+    console.log(await usdc.balanceOf(pool.address));
+    console.log(await aave.balanceOf(pool.address));
+    console.log(await wmatic.balanceOf(owner.address));
   });
 });
