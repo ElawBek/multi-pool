@@ -31,7 +31,7 @@ contract UniswapV3Exchange is IExchange, Ownable {
     uint256 amount,
     address recipient,
     bool inputIsNativeToken
-  ) external payable override returns (uint256) {
+  ) external payable override onlyOwner returns (uint256) {
     ISwapRouter.ExactInputSingleParams memory paramsForSwap = ISwapRouter
       .ExactInputSingleParams({
         tokenIn: tokenIn,

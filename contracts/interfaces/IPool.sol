@@ -13,8 +13,8 @@ contract IPool {
     uint16 investFee;
     uint16 successFee;
     uint256 totalReceivedCurrency;
+    uint256 totalInvestFee;
     uint256 totalSuccessFee;
-    uint256 totalManagerFee;
   }
 
   struct PoolInfo {

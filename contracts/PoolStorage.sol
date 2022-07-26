@@ -20,8 +20,8 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
 
   uint256[] internal _poolTokensBalances;
   uint256 public totalReceivedCurrency;
+  uint256 public totalInvestFee;
   uint256 public totalSuccessFee;
-  uint256 public totalManagerFee;
 
   mapping(address => InvestmentData[]) internal _investmentDataByUser;
   mapping(address => uint256) internal _investmentIds;
@@ -67,6 +67,10 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
     return _investmentDataByUser[investor];
   }
 
+  function entryAsset() external view returns (address) {
+    return poolInfo.entryAsset;
+  }
+
   function tokenList() external view returns (address[] memory) {
     return poolInfo.poolTokens;
   }
@@ -87,8 +91,8 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
       investFee: poolInfo.investFee,
       successFee: poolInfo.successFee,
       totalReceivedCurrency: totalReceivedCurrency,
-      totalSuccessFee: totalSuccessFee,
-      totalManagerFee: totalManagerFee
+      totalInvestFee: totalInvestFee,
+      totalSuccessFee: totalSuccessFee
     });
 
     return _poolData;
@@ -137,8 +141,6 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
     uint256 amount,
     bool inputIsNativeToken
   ) internal {
-    // require(amount >= _minInvest, "amount is too small");
-
     PoolInfo memory _poolInfo = poolInfo;
 
     if (!inputIsNativeToken) {
@@ -152,15 +154,17 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
 
     uint256 managerFee = (amount * _poolInfo.investFee) / 100;
     uint256 investmentAmount = amount - managerFee;
-
-    uint256[] memory tokenBalances = new uint256[](_poolInfo.poolSize);
     totalReceivedCurrency += investmentAmount;
 
-    TransferHelper.safeApprove(
-      _poolInfo.entryAsset,
-      address(_swapRouter),
-      investmentAmount
-    );
+    uint256[] memory tokenBalances = new uint256[](_poolInfo.poolSize);
+
+    if (!inputIsNativeToken) {
+      TransferHelper.safeApprove(
+        _poolInfo.entryAsset,
+        address(_swapRouter),
+        investmentAmount
+      );
+    }
 
     uint256 timestamp = block.timestamp + 1200; // 20 mins
 
@@ -195,7 +199,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
     _investmentIds[investor]++;
 
     if (managerFee > 0) {
-      totalManagerFee += managerFee;
+      totalInvestFee += managerFee;
 
       if (inputIsNativeToken) {
         TransferHelper.safeTransferETH(_poolInfo.feeAddress, managerFee);

@@ -45,11 +45,11 @@ contract Pool is PoolStorage {
     _initInvestment(msg.sender, msg.value, msg.value > 0);
   }
 
-  function initSecureInvestment(uint256 amount, uint256[] memory outputs)
+  function invest(uint256 amount, uint256[] memory outputs)
     external
     payable
-    nonReentrant
     whenNotPaused
+    nonReentrant
   {
     require(amount >= _minInvest, "amount is too small");
 
