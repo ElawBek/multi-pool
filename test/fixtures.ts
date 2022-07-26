@@ -1,9 +1,8 @@
 import { ethers } from "hardhat";
 
 import { parseEther } from "ethers/lib/utils";
-import { constants } from "ethers";
 
-import { Pool__factory } from "../typechain-types";
+import { Pool__factory, UniswapV3Exchange__factory } from "../typechain-types";
 
 export const ROUTER_ADDRESS = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
 export const QUOTER = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6";
@@ -13,6 +12,30 @@ export const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
 export const AAVE = "0xD6DF932A45C0f255f85145f286eA0b292B21C90B";
 
 export async function deployFixture() {
+  const [owner, alice] = await ethers.getSigners();
+
+  const uniExchange = await new UniswapV3Exchange__factory(owner).deploy(
+    ROUTER_ADDRESS,
+    3000
+  );
+
+  const pool = await new Pool__factory(owner).deploy(
+    WMATIC,
+    owner.address,
+    10,
+    10,
+    uniExchange.address,
+    QUOTER,
+    parseEther("1"),
+    3000,
+    [WETH, USDC, AAVE],
+    [25, 25, 50]
+  );
+
+  return { owner, pool, alice };
+}
+
+export async function badDeployFixture() {
   const [owner, alice] = await ethers.getSigners();
 
   const pool = await new Pool__factory(owner).deploy(
@@ -25,7 +48,7 @@ export async function deployFixture() {
     parseEther("1"),
     3000,
     [WETH, USDC, AAVE],
-    [25, 25, 50]
+    [0, 25, 50]
   );
 
   return { owner, pool, alice };

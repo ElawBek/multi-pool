@@ -6,8 +6,8 @@
   "description": "Hardhat-template",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^1.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.30.7",
-    "@typescript-eslint/parser": "^5.30.7",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
     "dotenv": "^16.0.1",
     "eslint": "^8.20.0",
     "hardhat": "^2.10.1",
@@ -15,7 +15,8 @@
     "solhint": "^3.3.7"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.4.0",
+    "@openzeppelin/contracts": "^4.7.1",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "@uniswap/v3-periphery": "^1.4.1"
   }
 }

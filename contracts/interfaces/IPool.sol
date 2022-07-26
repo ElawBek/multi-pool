@@ -1,20 +1,30 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.6;
-pragma abicoder v2;
+pragma solidity ^0.8.9;
 
 contract IPool {
   struct PoolData {
-    address entryToken;
+    address owner;
+    address entryAsset;
     address[] poolTokens;
     uint8[] poolDistribution;
     uint256[] poolTokensBalances;
     uint8 poolSize;
     address feeAddress;
-    uint8 investFee;
-    uint8 successFee;
+    uint16 investFee;
+    uint16 successFee;
     uint256 totalReceivedCurrency;
     uint256 totalSuccessFee;
     uint256 totalManagerFee;
+  }
+
+  struct PoolInfo {
+    address entryAsset;
+    address feeAddress;
+    uint16 investFee;
+    uint16 successFee;
+    uint8 poolSize;
+    uint8[] poolDistribution;
+    address[] poolTokens;
   }
 
   struct InvestmentData {

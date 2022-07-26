@@ -9,7 +9,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.7.6",
+        version: "0.8.9",
         settings: {
           optimizer: {
             enabled: true,
@@ -22,9 +22,24 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       forking: {
-        url: process.env.ALCHEMY_URL || "",
+        url: process.env.POLYGON_URL || "",
         blockNumber: 31122590,
       },
+    },
+    polygon: {
+      url: process.env.POLYGON_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    ethereum: {
+      url: process.env.ETHEREUM_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    bsc: {
+      url: process.env.BSC_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },
   gasReporter: {
