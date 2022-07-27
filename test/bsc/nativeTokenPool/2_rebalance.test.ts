@@ -80,7 +80,7 @@ describe("Rebalance", () => {
 
     it("Trying to execute `toggleRebalance` function with non-exists investment should revert", async () => {
       await expect(bnbPool.connect(owner).toggleRebalance(1)).to.revertedWith(
-        "invesment non-exists"
+        "investment non-exists"
       );
     });
 
@@ -98,6 +98,22 @@ describe("Rebalance", () => {
 
       await expect(bnbPool.connect(alice).rebalance(0)).to.revertedWith(
         "rebalance not enabled"
+      );
+    });
+
+    it("Cannot rebalance when paused", async () => {
+      await bnbPool.connect(owner).pause();
+
+      await expect(bnbPool.connect(alice).rebalance(0)).to.revertedWith(
+        "Pausable: paused"
+      );
+    });
+
+    it("Cannot toggleRebalance when paused", async () => {
+      await bnbPool.connect(owner).pause();
+
+      await expect(bnbPool.connect(alice).toggleRebalance(0)).to.revertedWith(
+        "Pausable: paused"
       );
     });
   });

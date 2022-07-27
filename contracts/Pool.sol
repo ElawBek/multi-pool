@@ -83,14 +83,14 @@ contract Pool is PoolStorage {
     uint256 investCount = _investmentIds[msg.sender];
     require(
       investmentId <= investCount && investCount > 0,
-      "invesment non-exists"
+      "investment non-exists"
     );
 
     InvestmentData memory _investData = _investmentDataByUser[msg.sender][
       investmentId
     ];
 
-    require(_investData.active, "investment is not active");
+    require(_investData.active, "investment not active");
 
     PoolInfo memory _poolInfo = poolInfo;
 
@@ -108,38 +108,39 @@ contract Pool is PoolStorage {
     }
 
     uint256 finalEntryAssetAmount = entryAssetAmount;
-    uint256 receivedCurrency = _investData.receivedCurrency;
 
-    if (entryAssetAmount > receivedCurrency) {
+    if (entryAssetAmount > _investData.receivedCurrency) {
       uint256 successFee = (entryAssetAmount * _poolInfo.successFee) / 100;
 
       finalEntryAssetAmount = entryAssetAmount - successFee;
 
       totalSuccessFee += successFee;
 
-      _transferEntryAsset(
-        _investData.inputIsNativeToken,
+      TransferHelper.safeTransferFrom(
+        poolInfo.entryAsset,
+        address(this),
         _poolInfo.feeAddress,
         successFee
       );
     }
 
-    _transferEntryAsset(
-      _investData.inputIsNativeToken,
+    TransferHelper.safeTransferFrom(
+      poolInfo.entryAsset,
+      address(this),
       msg.sender,
       finalEntryAssetAmount
     );
 
     _investmentDataByUser[msg.sender][investmentId].active = false;
 
-    emit UnInvested(msg.sender, finalEntryAssetAmount, investmentId);
+    emit InvestmentWithdrawal(msg.sender, finalEntryAssetAmount, investmentId);
   }
 
   function toggleRebalance(uint256 investmentId) external whenNotPaused {
     uint256 investCount = _investmentIds[msg.sender];
     require(
       investmentId <= investCount && investCount > 0,
-      "invesment non-exists"
+      "investment non-exists"
     );
 
     InvestmentData memory _investData = _investmentDataByUser[msg.sender][

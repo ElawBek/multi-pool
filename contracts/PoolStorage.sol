@@ -280,22 +280,4 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
 
     _poolTokensBalances[i] -= tokenBalance;
   }
-
-  function _transferEntryAsset(
-    bool inputIsNativeToken,
-    address recipient,
-    uint256 amount
-  ) internal {
-    if (inputIsNativeToken) {
-      IWETH(poolInfo.entryAsset).withdraw(amount);
-      TransferHelper.safeTransferETH(recipient, amount);
-    } else {
-      TransferHelper.safeTransferFrom(
-        poolInfo.entryAsset,
-        address(this),
-        recipient,
-        amount
-      );
-    }
-  }
 }

@@ -41,7 +41,7 @@ contract IPool {
     uint256[] tokenBalances,
     uint8[] tokenDistribution
   );
-  event UnInvested(
+  event InvestmentWithdrawal(
     address indexed user,
     uint256 maticAmount,
     uint256 investmentId
