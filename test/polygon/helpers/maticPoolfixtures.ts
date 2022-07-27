@@ -2,7 +2,6 @@ import { ethers } from "hardhat";
 
 import { parseEther } from "ethers/lib/utils";
 
-// TODO delete quoter
 import { ROUTER_ADDRESS, WETH, WMATIC, USDC, AAVE, QUOTER } from "./constants";
 
 import {
@@ -15,6 +14,7 @@ export async function deployMaticPoolFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
+    QUOTER,
     3000
   );
 
@@ -24,7 +24,7 @@ export async function deployMaticPoolFixture() {
     10,
     10,
     uniswapExchange.address,
-    QUOTER,
+    WMATIC,
     parseEther("1"),
     [WETH, USDC, AAVE],
     [50, 25, 25]
@@ -40,6 +40,7 @@ export async function investFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
+    QUOTER,
     3000
   );
 
@@ -49,7 +50,7 @@ export async function investFixture() {
     10,
     10,
     uniswapExchange.address,
-    QUOTER,
+    WMATIC,
     parseEther("1"),
     [WETH, USDC, AAVE],
     [50, 25, 25]

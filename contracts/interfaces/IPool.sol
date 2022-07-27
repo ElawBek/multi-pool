@@ -52,5 +52,10 @@ contract IPool {
     uint256[] tokenBalances,
     uint8[] tokenDistribution
   );
+  event ToggleRebalance(
+    address indexed user,
+    uint256 investmentId,
+    bool rebalanceEnabled
+  );
   event Received(address sender, uint256 amount);
 }

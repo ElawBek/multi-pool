@@ -4,15 +4,15 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
+import "@uniswap/v2-periphery/contracts/interfaces/IWETH.sol";
 
 import "./interfaces/IExchange.sol";
 import "./interfaces/IPool.sol";
 
 contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
   IExchange internal _swapRouter;
-  IQuoter internal _quoter;
+  address internal _wrapOfNativeToken;
 
   uint256 internal _minInvest;
 
@@ -49,12 +49,6 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
     virtual
     returns (InvestmentData memory)
   {
-    uint256 investCount = _investmentIds[investor];
-    require(
-      investmentId <= investCount && investCount > 0,
-      "Invesment non-exists"
-    );
-
     return _investmentDataByUser[investor][investmentId];
   }
 
@@ -107,8 +101,8 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
   }
 
   function setFeeAddress(address _feeAddress) external onlyOwner whenPaused {
-    require(poolInfo.feeAddress != _feeAddress, "This address is already set");
-    require(_feeAddress != address(0), "New fee address is address(0)");
+    require(poolInfo.feeAddress != _feeAddress, "this address is already set");
+    require(_feeAddress != address(0), "new fee address is address(0)");
 
     poolInfo.feeAddress = _feeAddress;
   }
@@ -118,7 +112,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
     onlyOwner
     whenPaused
   {
-    require(_minInvestmentLimit > 0, "New min invest is zero");
+    require(_minInvestmentLimit > 0, "new min invest is zero");
     _minInvest = _minInvestmentLimit;
   }
 
@@ -221,14 +215,6 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
     );
   }
 
-  // function _quote(
-  //   address tokenIn,
-  //   address tokenOut,
-  //   uint256 amount
-  // ) internal returns (uint256) {
-  //   return _quoter.quoteExactInputSingle(tokenIn, tokenOut, _fee, amount, 0);
-  // }
-
   function _entryAssetToToken(
     address entryAssetAddress,
     uint256 amount,
@@ -293,5 +279,23 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
     );
 
     _poolTokensBalances[i] -= tokenBalance;
+  }
+
+  function _transferEntryAsset(
+    bool inputIsNativeToken,
+    address recipient,
+    uint256 amount
+  ) internal {
+    if (inputIsNativeToken) {
+      IWETH(poolInfo.entryAsset).withdraw(amount);
+      TransferHelper.safeTransferETH(recipient, amount);
+    } else {
+      TransferHelper.safeTransferFrom(
+        poolInfo.entryAsset,
+        address(this),
+        recipient,
+        amount
+      );
+    }
   }
 }

@@ -2,13 +2,22 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
 import { deployMaticPoolFixture, WETH, USDC, AAVE, WMATIC } from "../helpers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
+import { Pool, UniswapV3Exchange } from "../../../typechain-types";
 
 describe("Pool state", () => {
-  it("state", async () => {
-    const { owner, maticPool, uniswapExchange } = await loadFixture(
-      deployMaticPoolFixture
-    );
+  let maticPool: Pool;
+  let uniswapExchange: UniswapV3Exchange;
+  let owner: SignerWithAddress;
 
+  beforeEach(async () => {
+    ({ owner, maticPool, uniswapExchange } = await loadFixture(
+      deployMaticPoolFixture
+    ));
+  });
+
+  it("state", async () => {
     expect(await maticPool.swapRouter()).to.eq(uniswapExchange.address);
     expect(await maticPool.tokenList()).to.deep.eq([WETH, USDC, AAVE]);
     expect(await maticPool.entryAsset()).to.eq(WMATIC);

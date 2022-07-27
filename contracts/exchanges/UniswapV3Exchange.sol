@@ -3,25 +3,39 @@ pragma solidity ^0.8.9;
 
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "../interfaces/IExchange.sol";
 
-// TODO Quoter
 contract UniswapV3Exchange is IExchange, Ownable {
   using TransferHelper for address;
 
   ISwapRouter public swapRouter;
+  IQuoter private _quoter;
   uint24 public fee;
 
-  constructor(address _swapRouter, uint24 _fee) {
+  constructor(
+    address _swapRouter,
+    address quoter_,
+    uint24 _fee
+  ) {
     swapRouter = ISwapRouter(_swapRouter);
+    _quoter = IQuoter(quoter_);
     fee = _fee;
   }
 
   function setFee(uint24 newFee) external override onlyOwner {
     fee = newFee;
+  }
+
+  function quote(
+    address tokenIn,
+    address tokenOut,
+    uint256 amountIn
+  ) external onlyOwner returns (uint256) {
+    return _quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, 0);
   }
 
   function swap(

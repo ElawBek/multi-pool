@@ -16,7 +16,7 @@ contract Pool is PoolStorage {
     uint16 _investFee,
     uint16 _successFee,
     address swapRouter_,
-    address quoter_,
+    address wrapOfNativeToken_,
     uint256 _min,
     address[] memory _poolTokens,
     uint8[] memory _poolDistribution
@@ -30,7 +30,7 @@ contract Pool is PoolStorage {
     poolInfo.successFee = _successFee;
 
     _swapRouter = IExchange(swapRouter_);
-    _quoter = IQuoter(quoter_);
+    _wrapOfNativeToken = wrapOfNativeToken_;
     _minInvest = _min;
 
     for (uint256 i; i < _poolTokens.length; i++) {
@@ -41,57 +41,56 @@ contract Pool is PoolStorage {
   }
 
   receive() external payable nonReentrant whenNotPaused {
+    require(_wrapOfNativeToken != address(0), "entry asset not native token");
     require(msg.value >= _minInvest, "amount is too small");
     _initInvestment(msg.sender, msg.value, msg.value > 0);
   }
 
-  function invest(uint256 amount, uint256[] memory outputs)
-    external
-    payable
-    whenNotPaused
-    nonReentrant
-  {
+  function invest(uint256 amount) external payable whenNotPaused nonReentrant {
     require(amount >= _minInvest, "amount is too small");
 
-    if (msg.value > 0) {
+    if (_wrapOfNativeToken != address(0)) {
       require(msg.value == amount, "wrong value");
     }
 
-    // PoolInfo memory _poolInfo = poolInfo;
-
-    // bool priceChanged = false;
-    // for (uint256 i = 0; i < _poolInfo.poolSize; i++) {
-    //   uint256 inputAmountForToken = (amount * _poolInfo.poolDistribution[i]) /
-    //     100;
-
-    //   uint256 amountOfToken = _quote(
-    //     _poolInfo.entryAsset,
-    //     _poolInfo.poolTokens[i],
-    //     inputAmountForToken
-    //   );
-
-    //   if (amountOfToken != outputs[i]) {
-    //     priceChanged = true;
-    //     break;
-    //   }
-    // }
-    // require(priceChanged == false, "token price changed");
-
     _initInvestment(msg.sender, amount, msg.value > 0);
+  }
+
+  function previewDeposit(uint256 amountIn)
+    external
+    returns (uint256[] memory previewBalances)
+  {
+    PoolInfo memory _poolInfo = poolInfo;
+    IExchange swapRouter_ = _swapRouter;
+
+    previewBalances = new uint256[](_poolInfo.poolSize);
+    for (uint256 i; i < _poolInfo.poolSize; i++) {
+      uint256 amountForToken = (amountIn * _poolInfo.poolDistribution[i]) / 100;
+
+      if (amountForToken == 0) {
+        continue;
+      }
+
+      previewBalances[i] = swapRouter_.quote(
+        _poolInfo.entryAsset,
+        _poolInfo.poolTokens[i],
+        amountForToken
+      );
+    }
   }
 
   function withdraw(uint256 investmentId) external nonReentrant whenNotPaused {
     uint256 investCount = _investmentIds[msg.sender];
     require(
       investmentId <= investCount && investCount > 0,
-      "Invesment non-exists"
+      "invesment non-exists"
     );
 
     InvestmentData memory _investData = _investmentDataByUser[msg.sender][
       investmentId
     ];
 
-    require(_investData.active, "Investment is not active");
+    require(_investData.active, "investment is not active");
 
     PoolInfo memory _poolInfo = poolInfo;
 
@@ -118,17 +117,15 @@ contract Pool is PoolStorage {
 
       totalSuccessFee += successFee;
 
-      TransferHelper.safeTransferFrom(
-        _poolInfo.entryAsset,
-        address(this),
+      _transferEntryAsset(
+        _investData.inputIsNativeToken,
         _poolInfo.feeAddress,
         successFee
       );
     }
 
-    TransferHelper.safeTransferFrom(
-      _poolInfo.entryAsset,
-      address(this),
+    _transferEntryAsset(
+      _investData.inputIsNativeToken,
       msg.sender,
       finalEntryAssetAmount
     );
@@ -142,33 +139,37 @@ contract Pool is PoolStorage {
     uint256 investCount = _investmentIds[msg.sender];
     require(
       investmentId <= investCount && investCount > 0,
-      "Invesment non-exists"
+      "invesment non-exists"
     );
 
     InvestmentData memory _investData = _investmentDataByUser[msg.sender][
       investmentId
     ];
 
-    require(_investData.active, "Investment not active");
+    require(_investData.active, "investment not active");
 
     _investmentDataByUser[msg.sender][investmentId]
       .rebalanceEnabled = !_investData.rebalanceEnabled;
 
-    // TODO event
+    emit ToggleRebalance(
+      msg.sender,
+      investmentId,
+      !_investData.rebalanceEnabled
+    );
   }
 
   function rebalance(uint256 investmentId) external nonReentrant whenNotPaused {
     uint256 investCount = _investmentIds[msg.sender];
     require(
       investmentId <= investCount && investCount > 0,
-      "Invesment non-exists"
+      "investment non-exists"
     );
 
     InvestmentData memory _investData = _investmentDataByUser[msg.sender][
       investmentId
     ];
 
-    require(_investData.active, "Investment not active");
+    require(_investData.active, "investment not active");
     require(_investData.rebalanceEnabled, "rebalance not enabled");
 
     PoolInfo memory _poolInfo = poolInfo;
@@ -181,7 +182,6 @@ contract Pool is PoolStorage {
         continue;
       }
 
-      // _investmentDataByUser[msg.sender][investmentId].tokenBalances[i] = 0;
       uint256 amount = _tokensToEntryAsset(timestamp, tokenBalance, i);
 
       allSwappedCurrency += amount;
@@ -193,12 +193,12 @@ contract Pool is PoolStorage {
       allSwappedCurrency
     );
 
-    // uint256[] memory tokenBalances = new uint256[](_poolInfo.poolSize);
     for (uint256 i = 0; i < _poolInfo.poolSize; ++i) {
       uint256 amountForToken = (allSwappedCurrency *
         _poolInfo.poolDistribution[i]) / 100;
 
       if (amountForToken == 0) {
+        _investData.tokenBalances[i] = 0;
         continue;
       }
 
@@ -209,8 +209,6 @@ contract Pool is PoolStorage {
         timestamp,
         false
       );
-
-      // tokenBalances[i] = tokenBalance;
 
       _investData.tokenBalances[i] = tokenBalance;
     }

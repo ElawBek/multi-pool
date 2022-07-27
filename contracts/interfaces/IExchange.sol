@@ -4,6 +4,12 @@ pragma solidity ^0.8.9;
 interface IExchange {
   function setFee(uint24 amount) external;
 
+  function quote(
+    address tokenIn,
+    address tokenOut,
+    uint256 amountIn
+  ) external returns (uint256);
+
   function swap(
     address tokenIn,
     address tokenOut,

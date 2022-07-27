@@ -22,12 +22,14 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       forking: {
-        url: process.env.POLYGON_URL || "",
-        blockNumber: 31122590,
+        url: process.env.BSC_URL || "",
+        // url: process.env.POLYGON_URL || "",
+        // blockNumber: 31122590,
+        // url: process.env.ETHEREUM_URL || "",
       },
     },
     polygon: {
-      url: process.env.POLYGON_URL,
+      url: process.env.POLYGON_URL, // 31122590
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
@@ -37,7 +39,7 @@ const config: HardhatUserConfig = {
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     bsc: {
-      url: process.env.BSC_URL,
+      url: process.env.BSC_URL, // 19907810
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
