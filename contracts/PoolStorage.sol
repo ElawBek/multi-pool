@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
-import "@uniswap/v2-periphery/contracts/interfaces/IWETH.sol";
 
 import "./interfaces/IExchange.sol";
 import "./interfaces/IPool.sol";
@@ -147,8 +146,11 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
     }
 
     uint256 managerFee = (amount * _poolInfo.investFee) / 100;
-    uint256 investmentAmount = amount - managerFee;
-    totalReceivedCurrency += investmentAmount;
+    uint256 investmentAmount;
+    unchecked {
+      investmentAmount = amount - managerFee;
+      totalReceivedCurrency += investmentAmount;
+    }
 
     uint256[] memory tokenBalances = new uint256[](_poolInfo.poolSize);
 
@@ -160,11 +162,18 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
       );
     }
 
-    uint256 timestamp = block.timestamp + 1200; // 20 mins
+    uint256 timestamp;
+    unchecked {
+      timestamp = block.timestamp + 1200; // 20 mins
+    }
 
     for (uint256 i; i < _poolInfo.poolSize; i++) {
-      uint256 amountForToken = (investmentAmount *
-        _poolInfo.poolDistribution[i]) / 100;
+      uint256 amountForToken;
+      unchecked {
+        amountForToken =
+          (investmentAmount * _poolInfo.poolDistribution[i]) /
+          100;
+      }
 
       if (amountForToken == 0) {
         continue;
@@ -190,10 +199,15 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
         active: true
       })
     );
-    _investmentIds[investor]++;
+
+    unchecked {
+      _investmentIds[investor]++;
+    }
 
     if (managerFee > 0) {
-      totalInvestFee += managerFee;
+      unchecked {
+        totalInvestFee += managerFee;
+      }
 
       if (inputIsNativeToken) {
         TransferHelper.safeTransferETH(_poolInfo.feeAddress, managerFee);
@@ -232,6 +246,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
         address(this),
         inputIsNativeToken
       );
+
       _poolTokensBalances[i] += tokenBalance;
 
       return tokenBalance;
@@ -251,6 +266,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
       address(this),
       inputIsNativeToken
     );
+
     _poolTokensBalances[i] += tokenBalance;
 
     return tokenBalance;

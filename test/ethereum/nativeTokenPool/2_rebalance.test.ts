@@ -13,88 +13,90 @@ describe("Rebalance", () => {
   let owner: SignerWithAddress;
   let alice: SignerWithAddress;
 
-  let weth: IERC20;
+  let dai: IERC20;
   let usdc: IERC20;
-  let aave: IERC20;
+  let uni: IERC20;
 
-  let maticPool: Pool;
+  let ethPool: Pool;
 
   async function getBalancesOf(address: string) {
     const balances = [];
-    balances.push(await weth.balanceOf(address));
+    balances.push(await dai.balanceOf(address));
     balances.push(await usdc.balanceOf(address));
-    balances.push(await aave.balanceOf(address));
+    balances.push(await uni.balanceOf(address));
 
     return balances;
   }
 
   describe("#rebalance", () => {
     beforeEach(async () => {
-      ({ owner, alice, maticPool } = await loadFixture(investFixture));
-      ({ usdc, aave, weth } = getTokens(owner));
+      ({ owner, alice, ethPool } = await loadFixture(investFixture));
+      ({ usdc, uni, dai } = getTokens(owner));
     });
 
     it("Non-exists investment", async () => {
-      await expect(maticPool.rebalance(1)).to.revertedWith(
+      await expect(ethPool.rebalance(1)).to.revertedWith(
         "investment non-exists"
       );
     });
 
     it("Successful rebalance should emit `Rebalanced` event", async () => {
-      await expect(maticPool.connect(alice).rebalance(0))
-        .to.emit(maticPool, "Rebalanced")
+      await expect(ethPool.connect(alice).rebalance(0))
+        .to.emit(ethPool, "Rebalanced")
         .withArgs(alice.address, 0, anyValue, [50, 25, 25]);
     });
 
     it("Successful rebalance after change distributions", async () => {
-      await maticPool.connect(owner).pause();
-      await maticPool.connect(owner).setPoolTokensDistributions([45, 0, 55]);
-      await maticPool.connect(owner).unpause();
+      await ethPool.connect(owner).pause();
+      await ethPool.connect(owner).setPoolTokensDistributions([45, 0, 55]);
+      await ethPool.connect(owner).unpause();
 
-      expect(await getBalancesOf(maticPool.address)).to.deep.eq(
-        await maticPool.poolTokensBalances()
+      expect(await getBalancesOf(ethPool.address)).to.deep.eq(
+        await ethPool.poolTokensBalances()
       );
 
-      const { tokenBalances: balancesBefore } =
-        await maticPool.investmentByUser(alice.address, 0);
+      const { tokenBalances: balancesBefore } = await ethPool.investmentByUser(
+        alice.address,
+        0
+      );
 
       expect(balancesBefore[1]).to.not.eq(0);
 
-      await expect(maticPool.connect(alice).rebalance(0))
-        .to.emit(maticPool, "Rebalanced")
+      await expect(ethPool.connect(alice).rebalance(0))
+        .to.emit(ethPool, "Rebalanced")
         .withArgs(alice.address, 0, anyValue, [45, 0, 55]);
 
-      const { tokenBalances: balancesAfter } = await maticPool.investmentByUser(
+      const { tokenBalances: balancesAfter } = await ethPool.investmentByUser(
         alice.address,
         0
       );
 
       expect(balancesAfter[1]).to.eq(0);
 
-      expect(await getBalancesOf(maticPool.address)).to.deep.eq(
-        await maticPool.poolTokensBalances()
+      expect(await getBalancesOf(ethPool.address)).to.deep.eq(
+        await ethPool.poolTokensBalances()
       );
     });
 
     it("Trying to execute `toggleRebalance` function with non-exists investment should revert", async () => {
-      await expect(maticPool.connect(owner).toggleRebalance(1)).to.revertedWith(
+      await expect(ethPool.connect(owner).toggleRebalance(1)).to.revertedWith(
         "investment non-exists"
       );
     });
 
     it("Successful `toggleRebalance` should emit `ToggleRebalance` event", async () => {
-      await expect(maticPool.connect(alice).toggleRebalance(0))
-        .to.emit(maticPool, "ToggleRebalance")
+      await expect(ethPool.connect(alice).toggleRebalance(0))
+        .to.emit(ethPool, "ToggleRebalance")
         .withArgs(alice.address, 0, false);
     });
 
     it("Rebalance not works after disable it", async () => {
-      await maticPool.connect(alice).toggleRebalance(0);
+      await ethPool.connect(alice).toggleRebalance(0);
       expect(
-        (await maticPool.investmentByUser(alice.address, 0)).rebalanceEnabled
+        (await ethPool.investmentByUser(alice.address, 0)).rebalanceEnabled
       ).to.eq(false);
 
-      await expect(maticPool.connect(alice).rebalance(0)).to.revertedWith(
+      await expect(ethPool.connect(alice).rebalance(0)).to.revertedWith(
         "rebalance not enabled"
       );
     });

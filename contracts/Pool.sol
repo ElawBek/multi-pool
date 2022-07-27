@@ -33,10 +33,12 @@ contract Pool is PoolStorage {
     _wrapOfNativeToken = wrapOfNativeToken_;
     _minInvest = _min;
 
-    for (uint256 i; i < _poolTokens.length; i++) {
-      poolInfo.poolDistribution.push(_poolDistribution[i]);
-      poolInfo.poolTokens.push(_poolTokens[i]);
-      _poolTokensBalances.push(0);
+    unchecked {
+      for (uint256 i; i < _poolTokens.length; i++) {
+        poolInfo.poolDistribution.push(_poolDistribution[i]);
+        poolInfo.poolTokens.push(_poolTokens[i]);
+        _poolTokensBalances.push(0);
+      }
     }
   }
 
@@ -56,6 +58,7 @@ contract Pool is PoolStorage {
     _initInvestment(msg.sender, amount, msg.value > 0);
   }
 
+  // TODO
   function previewDeposit(uint256 amountIn)
     external
     returns (uint256[] memory previewBalances)
@@ -95,7 +98,11 @@ contract Pool is PoolStorage {
     PoolInfo memory _poolInfo = poolInfo;
 
     uint256 entryAssetAmount;
-    uint256 timestamp = block.timestamp + 1200; // 20 mins
+
+    uint256 timestamp;
+    unchecked {
+      timestamp = block.timestamp + 1200; // 20 mins
+    }
 
     for (uint256 i; i < _poolInfo.poolSize; i++) {
       uint256 tokenBalance = _investData.tokenBalances[i];
@@ -104,6 +111,7 @@ contract Pool is PoolStorage {
       }
 
       uint256 amount = _tokensToEntryAsset(timestamp, tokenBalance, i);
+
       entryAssetAmount = entryAssetAmount + amount;
     }
 
@@ -111,10 +119,11 @@ contract Pool is PoolStorage {
 
     if (entryAssetAmount > _investData.receivedCurrency) {
       uint256 successFee = (entryAssetAmount * _poolInfo.successFee) / 100;
+      unchecked {
+        finalEntryAssetAmount = entryAssetAmount - successFee;
 
-      finalEntryAssetAmount = entryAssetAmount - successFee;
-
-      totalSuccessFee += successFee;
+        totalSuccessFee += successFee;
+      }
 
       TransferHelper.safeTransferFrom(
         poolInfo.entryAsset,
@@ -175,7 +184,11 @@ contract Pool is PoolStorage {
 
     PoolInfo memory _poolInfo = poolInfo;
     uint256 allSwappedCurrency;
-    uint256 timestamp = block.timestamp + 1200; // 20 mins
+
+    uint256 timestamp;
+    unchecked {
+      timestamp = block.timestamp + 1200; // 20 mins
+    }
 
     for (uint256 i; i < _poolInfo.poolSize; i++) {
       uint256 tokenBalance = _investData.tokenBalances[i];
@@ -185,7 +198,9 @@ contract Pool is PoolStorage {
 
       uint256 amount = _tokensToEntryAsset(timestamp, tokenBalance, i);
 
-      allSwappedCurrency += amount;
+      unchecked {
+        allSwappedCurrency += amount;
+      }
     }
 
     TransferHelper.safeApprove(
@@ -194,9 +209,13 @@ contract Pool is PoolStorage {
       allSwappedCurrency
     );
 
-    for (uint256 i = 0; i < _poolInfo.poolSize; ++i) {
-      uint256 amountForToken = (allSwappedCurrency *
-        _poolInfo.poolDistribution[i]) / 100;
+    for (uint256 i = 0; i < _poolInfo.poolSize; i++) {
+      uint256 amountForToken;
+      unchecked {
+        amountForToken =
+          (allSwappedCurrency * _poolInfo.poolDistribution[i]) /
+          100;
+      }
 
       if (amountForToken == 0) {
         _investData.tokenBalances[i] = 0;
