@@ -255,6 +255,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
         timestamp,
         amount,
         address(this),
+        i,
         inputIsNativeToken
       );
       _poolTokensBalances[i] += tokenBalance;
@@ -273,6 +274,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
       timestamp,
       amount,
       address(this),
+      i,
       inputIsNativeToken
     );
     _poolTokensBalances[i] += tokenBalance;
@@ -298,6 +300,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
       timestamp,
       tokenBalance,
       address(this),
+      i,
       false
     );
     _poolTokensBalances[i] -= tokenBalance;

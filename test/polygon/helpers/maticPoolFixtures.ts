@@ -14,7 +14,7 @@ export async function deployMaticPoolFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    3000
+    [3000, 3000, 3000]
   );
 
   const maticPool = await new Pool__factory(owner).deploy(
@@ -40,7 +40,7 @@ export async function investFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    3000
+    [3000, 3000, 3000]
   );
 
   const maticPool = await new Pool__factory(owner).deploy(

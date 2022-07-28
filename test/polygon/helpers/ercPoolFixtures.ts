@@ -43,7 +43,7 @@ export async function deployUsdcPoolFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    3000
+    [3000, 3000]
   );
 
   const usdcPool = await new Pool__factory(owner).deploy(
@@ -71,7 +71,7 @@ export async function investUsdcFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    3000
+    [3000, 3000]
   );
 
   const usdcPool = await new Pool__factory(owner).deploy(

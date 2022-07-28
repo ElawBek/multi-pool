@@ -99,12 +99,9 @@ describe("Investment", () => {
       const aliceInvestments = await maticPool.investmentsByUser(alice.address);
       const bobInvestments = await maticPool.investmentsByUser(bob.address);
 
-      expect([
-        aliceInvestments[0].active,
-        bobInvestments[0].active,
-        aliceInvestments[0].inputIsNativeToken,
-        bobInvestments[0].inputIsNativeToken,
-      ]).to.deep.eq([true, true, true, true]);
+      expect([aliceInvestments[0].active, bobInvestments[0].active]).to.deep.eq(
+        [true, true]
+      );
 
       expect([
         aliceInvestments[0].receivedCurrency,
@@ -127,12 +124,10 @@ describe("Investment", () => {
       );
       const bobInvestment = await maticPool.investmentByUser(bob.address, 0);
 
-      expect([
-        aliceInvestment.active,
-        bobInvestment.active,
-        aliceInvestment.inputIsNativeToken,
-        bobInvestment.inputIsNativeToken,
-      ]).to.deep.eq([true, true, true, true]);
+      expect([aliceInvestment.active, bobInvestment.active]).to.deep.eq([
+        true,
+        true,
+      ]);
 
       expect([
         aliceInvestment.receivedCurrency,

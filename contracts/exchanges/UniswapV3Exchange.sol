@@ -15,18 +15,19 @@ contract UniswapV3Exchange is IExchange, Ownable {
   ISwapRouter public swapRouter;
 
   /**
-   * @notice fee of all pools
+   * @notice fee of each pool
    *
-   * @dev all pools on uniswap must have the same commission defined in this variable.
-   * e.g - pool entryAsset - poolInfo.poolTokens[i] - fee 3000 (3000 = 0.3% on uniswapV3)
-   * e.g - pool entryAsset - poolInfo.poolTokens[i+1] - fee 3000
-   * e.g - pool entryAsset - poolInfo.poolTokens[i+2] - fee 3000
+   * @dev all pools on uniswap have the fee.
+   * e.g - pool entryAsset - poolInfo.poolTokens[i] - fee 3000 (3000 = 0.3%)
+   *       pool entryAsset - poolInfo.poolTokens[i+1] - fee 100 (100 = 0.01%)
+   *       pool entryAsset - poolInfo.poolTokens[i+2] - fee 10000 (10000 = 1%)
+   *       pool entryAsset - poolInfo.poolTokens[i+3] - fee 500 (500 = 0.05%)
    */
-  uint24 public fee;
+  uint24[] public fee;
 
   /// @param _swapRouter - address of UniswapV3 SwapRouter
-  /// @param _fee - fee of all pools
-  constructor(address _swapRouter, uint24 _fee) {
+  /// @param _fee - fee of each pool
+  constructor(address _swapRouter, uint24[] memory _fee) {
     swapRouter = ISwapRouter(_swapRouter);
     fee = _fee;
   }
@@ -38,13 +39,14 @@ contract UniswapV3Exchange is IExchange, Ownable {
     uint256 deadline,
     uint256 amount,
     address recipient,
+    uint256 index,
     bool inputIsNativeToken
   ) external payable override onlyOwner returns (uint256) {
     ISwapRouter.ExactInputSingleParams memory paramsForSwap = ISwapRouter
       .ExactInputSingleParams({
         tokenIn: tokenIn,
         tokenOut: tokenOut,
-        fee: fee,
+        fee: fee[index],
         recipient: recipient,
         deadline: deadline,
         amountIn: amount,

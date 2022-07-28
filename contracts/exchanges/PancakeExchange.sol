@@ -27,8 +27,10 @@ contract PancakeExchange is IExchange, Ownable {
     uint256 deadline,
     uint256 amount,
     address recipient,
+    uint256 index,
     bool inputIsNativeToken
   ) external payable override onlyOwner returns (uint256) {
+    index;
     address[] memory path = new address[](2);
     path[0] = tokenIn;
     path[1] = tokenOut;
