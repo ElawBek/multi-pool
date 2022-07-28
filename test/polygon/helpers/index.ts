@@ -1,7 +1,6 @@
 export {
   getTokens,
   AAVE,
-  QUOTER,
   ROUTER_ADDRESS,
   USDC,
   WETH,

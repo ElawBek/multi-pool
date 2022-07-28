@@ -2,7 +2,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { IERC20__factory } from "../../../typechain-types";
 
 export const ROUTER_ADDRESS = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
-export const QUOTER = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6";
 export const WMATIC = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
 export const WETH = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
 

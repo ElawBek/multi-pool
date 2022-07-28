@@ -8,7 +8,6 @@ import {
   WETH,
   WMATIC,
   USDC,
-  QUOTER,
   USDC_OWNER_FROM_MAINNET,
 } from "./constants";
 
@@ -44,7 +43,6 @@ export async function deployUsdcPoolFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    QUOTER,
     3000
   );
 
@@ -56,6 +54,7 @@ export async function deployUsdcPoolFixture() {
     uniswapExchange.address,
     constants.AddressZero,
     BigNumber.from(10 ** 6),
+    "USDC_POOL",
     [WETH, WMATIC],
     [75, 25]
   );
@@ -72,7 +71,6 @@ export async function investUsdcFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    QUOTER,
     3000
   );
 
@@ -84,6 +82,7 @@ export async function investUsdcFixture() {
     uniswapExchange.address,
     constants.AddressZero,
     BigNumber.from(10 ** 6),
+    "USDC_POOL",
     [WETH, WMATIC],
     [75, 25]
   );

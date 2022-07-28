@@ -51,6 +51,7 @@ export async function deployBusdPoolFixture() {
     pancakeExchange.address,
     constants.AddressZero,
     parseEther("1"),
+    "BUSD-POOL",
     [WETH, WBNB, CAKE],
     [50, 25, 25]
   );
@@ -77,6 +78,7 @@ export async function investBusdFixture() {
     pancakeExchange.address,
     constants.AddressZero,
     parseEther("1"),
+    "BUSD-POOL",
     [WETH, WBNB, CAKE],
     [50, 25, 25]
   );

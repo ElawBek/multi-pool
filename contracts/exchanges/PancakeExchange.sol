@@ -8,20 +8,19 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "../interfaces/IExchange.sol";
 
-// TODO quoter
+/// @title PancakeExchange
 contract PancakeExchange is IExchange, Ownable {
   using TransferHelper for address;
 
-  IUniswapV2Router01 public swapRouter;
+  /// @notice PancakeRouter
+  IUniswapV2Router01 public immutable swapRouter;
 
+  /// @param _swapRouter - address of PancakeSwap router
   constructor(address _swapRouter) {
     swapRouter = IUniswapV2Router01(_swapRouter);
   }
 
-  function setFee(uint24 x) external override onlyOwner {
-    revert();
-  }
-
+  /// @dev wrapper above function swap in the pancake router
   function swap(
     address tokenIn,
     address tokenOut,

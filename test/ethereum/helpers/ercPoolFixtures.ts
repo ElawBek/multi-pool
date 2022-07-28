@@ -9,7 +9,6 @@ import {
   WETH,
   DAI,
   UNI,
-  QUOTER,
   DAI_OWNER_FROM_MAINNET,
 } from "./constants";
 
@@ -41,7 +40,6 @@ export async function deployDaiPoolFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    QUOTER,
     3000
   );
 
@@ -53,6 +51,7 @@ export async function deployDaiPoolFixture() {
     uniswapExchange.address,
     constants.AddressZero,
     parseEther("1"),
+    "DAI-POOL",
     [WETH, UNI],
     [75, 25]
   );
@@ -69,7 +68,6 @@ export async function investDaiFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    QUOTER,
     3000
   );
 
@@ -81,6 +79,7 @@ export async function investDaiFixture() {
     uniswapExchange.address,
     constants.AddressZero,
     parseEther("1"),
+    "DAI-POOL",
     [WETH, UNI],
     [75, 25]
   );

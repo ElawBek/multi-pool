@@ -24,6 +24,7 @@ export async function deployBnbPoolFixture() {
     pancakeExchange.address,
     WBNB,
     parseEther("1"),
+    "BNB-POOL",
     [WETH, BUSD, CAKE],
     [50, 25, 25]
   );
@@ -48,6 +49,7 @@ export async function investFixture() {
     pancakeExchange.address,
     WBNB,
     parseEther("1"),
+    "BNB-POOL",
     [WETH, BUSD, CAKE],
     [50, 25, 25]
   );

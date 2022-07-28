@@ -44,10 +44,23 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    ropsten: {
+      url: process.env.ROPSTEN_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    bsctest: {
+      url: process.env.BSC_TESTNET_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
   gasReporter: {
     enabled: true,
     currency: "",
+  },
+  etherscan: {
+    apiKey: process.env.SCAN_API_KEY,
   },
 };
 

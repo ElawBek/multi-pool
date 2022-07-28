@@ -39,9 +39,13 @@ describe("Rebalance", () => {
     });
 
     it("Successful rebalance should emit `Rebalanced` event", async () => {
+      console.log(await usdcPool.investmentByUser(alice.address, 0));
+
       await expect(usdcPool.connect(alice).rebalance(0))
         .to.emit(usdcPool, "Rebalanced")
         .withArgs(alice.address, 0, anyValue, [75, 25]);
+
+      console.log(await usdcPool.investmentByUser(alice.address, 0));
     });
 
     it("Successful rebalance after change distributions", async () => {

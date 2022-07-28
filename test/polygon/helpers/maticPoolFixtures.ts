@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 import { parseEther } from "ethers/lib/utils";
 
-import { ROUTER_ADDRESS, WETH, WMATIC, USDC, AAVE, QUOTER } from "./constants";
+import { ROUTER_ADDRESS, WETH, WMATIC, USDC, AAVE } from "./constants";
 
 import {
   Pool__factory,
@@ -14,7 +14,6 @@ export async function deployMaticPoolFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    QUOTER,
     3000
   );
 
@@ -26,6 +25,7 @@ export async function deployMaticPoolFixture() {
     uniswapExchange.address,
     WMATIC,
     parseEther("1"),
+    "MATIC-POOL",
     [WETH, USDC, AAVE],
     [50, 25, 25]
   );
@@ -40,7 +40,6 @@ export async function investFixture() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    QUOTER,
     3000
   );
 
@@ -52,6 +51,7 @@ export async function investFixture() {
     uniswapExchange.address,
     WMATIC,
     parseEther("1"),
+    "MATIC-POOL",
     [WETH, USDC, AAVE],
     [50, 25, 25]
   );
