@@ -23,10 +23,10 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         // url: process.env.BSC_URL || "",
-        // url: process.env.POLYGON_URL || "",
-        // blockNumber: 31122590,
-        url: process.env.ETHEREUM_URL || "",
-        blockNumber: 15226630,
+        // url: process.env.ETHEREUM_URL || "",
+        // blockNumber: 15229540,
+        url: process.env.POLYGON_URL || "",
+        blockNumber: 31227193,
       },
     },
     polygon: {

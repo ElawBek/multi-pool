@@ -212,9 +212,8 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
       if (inputIsNativeToken) {
         TransferHelper.safeTransferETH(_poolInfo.feeAddress, managerFee);
       } else {
-        TransferHelper.safeTransferFrom(
+        TransferHelper.safeTransfer(
           _poolInfo.entryAsset,
-          address(this),
           _poolInfo.feeAddress,
           managerFee
         );

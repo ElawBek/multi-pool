@@ -22,25 +22,6 @@ contract PancakeExchange is IExchange, Ownable {
     revert();
   }
 
-  function quote(
-    address tokenIn,
-    address tokenOut,
-    uint256 amountIn
-  ) external override onlyOwner returns (uint256) {
-    address[] memory path = new address[](2);
-    path[0] = tokenIn;
-    path[1] = tokenOut;
-    // 0xd06ca61f - signature of getAmountsOut(uint256,address[])
-    (bool success, bytes memory data) = address(swapRouter).staticcall(
-      abi.encodeWithSelector(0xd06ca61f, amountIn, path)
-    );
-    require(success);
-
-    uint256[] memory amountsOut = abi.decode(data, (uint256[]));
-
-    return amountsOut[1];
-  }
-
   function swap(
     address tokenIn,
     address tokenOut,

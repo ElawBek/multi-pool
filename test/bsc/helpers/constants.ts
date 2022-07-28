@@ -3,6 +3,7 @@ import { IERC20__factory } from "../../../typechain-types";
 
 export const ROUTER_ADDRESS = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
 export const QUOTER = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6";
+
 export const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
 export const WETH = "0x2170Ed0880ac9A755fd29B2688956BD959F933F8";
 export const BUSD = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
@@ -16,3 +17,6 @@ export function getTokens(signer: SignerWithAddress) {
 
   return { wbnb, weth, busd, cake };
 }
+
+export const BUSD_OWNER_FROM_MAINNET =
+  "0x41772eDd47D9DDF9ef848cDB34fE76143908c7Ad";

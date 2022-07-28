@@ -7,4 +7,5 @@ export {
   WETH,
   WMATIC,
 } from "./constants";
-export { deployMaticPoolFixture, investFixture } from "./maticPoolfixtures";
+export { deployMaticPoolFixture, investFixture } from "./maticPoolFixtures";
+export { deployUsdcPoolFixture, investUsdcFixture } from "./ercPoolFixtures";

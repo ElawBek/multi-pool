@@ -58,30 +58,6 @@ contract Pool is PoolStorage {
     _initInvestment(msg.sender, amount, msg.value > 0);
   }
 
-  // TODO
-  function previewDeposit(uint256 amountIn)
-    external
-    returns (uint256[] memory previewBalances)
-  {
-    PoolInfo memory _poolInfo = poolInfo;
-    IExchange swapRouter_ = _swapRouter;
-
-    previewBalances = new uint256[](_poolInfo.poolSize);
-    for (uint256 i; i < _poolInfo.poolSize; i++) {
-      uint256 amountForToken = (amountIn * _poolInfo.poolDistribution[i]) / 100;
-
-      if (amountForToken == 0) {
-        continue;
-      }
-
-      previewBalances[i] = swapRouter_.quote(
-        _poolInfo.entryAsset,
-        _poolInfo.poolTokens[i],
-        amountForToken
-      );
-    }
-  }
-
   function withdraw(uint256 investmentId) external nonReentrant whenNotPaused {
     uint256 investCount = _investmentIds[msg.sender];
     require(
@@ -125,17 +101,15 @@ contract Pool is PoolStorage {
         totalSuccessFee += successFee;
       }
 
-      TransferHelper.safeTransferFrom(
+      TransferHelper.safeTransfer(
         poolInfo.entryAsset,
-        address(this),
         _poolInfo.feeAddress,
         successFee
       );
     }
 
-    TransferHelper.safeTransferFrom(
+    TransferHelper.safeTransfer(
       poolInfo.entryAsset,
-      address(this),
       msg.sender,
       finalEntryAssetAmount
     );
