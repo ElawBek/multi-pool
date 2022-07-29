@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 
 import { parseEther } from "ethers/lib/utils";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { ROUTER_ADDRESS, WETH, BUSD, CAKE, WBNB } from "./constants";
 
@@ -17,16 +18,16 @@ export async function deployBnbPoolFixture() {
   );
 
   const bnbPool = await new Pool__factory(owner).deploy(
-    WBNB,
-    owner.address,
-    10,
-    10,
-    pancakeExchange.address,
-    WBNB,
-    parseEther("1"),
-    "BNB-POOL",
-    [WETH, BUSD, CAKE],
-    [50, 25, 25]
+    WBNB, // entry asset
+    owner.address, // fee address
+    10, // invest fee
+    10, // success fee
+    pancakeExchange.address, // swap router
+    WBNB, // wrap above native currency (BNB)
+    parseEther("1"), // min invest
+    "BNB-POOL", // pool name
+    [WETH, BUSD, CAKE], // tokens
+    [50, 25, 25] // distribution
   );
 
   await pancakeExchange.transferOwnership(bnbPool.address);
@@ -42,16 +43,16 @@ export async function investFixture() {
   );
 
   const bnbPool = await new Pool__factory(owner).deploy(
-    WBNB,
-    owner.address,
-    10,
-    10,
-    pancakeExchange.address,
-    WBNB,
-    parseEther("1"),
-    "BNB-POOL",
-    [WETH, BUSD, CAKE],
-    [50, 25, 25]
+    WBNB, // entry asset
+    owner.address, // fee address
+    10, // invest fee
+    10, // success fee
+    pancakeExchange.address, // swap router
+    WBNB, // wrap above native currency (BNB)
+    parseEther("1"), // min invest
+    "BNB-POOL", // pool name
+    [WETH, BUSD, CAKE], // tokens
+    [50, 25, 25] // distribution
   );
 
   await pancakeExchange.transferOwnership(bnbPool.address);
@@ -67,4 +68,12 @@ export async function investFixture() {
   });
 
   return { pancakeExchange, bnbPool, owner, alice, bob };
+}
+
+export async function getSwapper(alice: SignerWithAddress) {
+  const pancakeExchangeHelper = await new PancakeExchange__factory(
+    alice
+  ).deploy(ROUTER_ADDRESS);
+
+  return { pancakeExchangeHelper };
 }

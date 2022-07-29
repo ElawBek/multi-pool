@@ -103,7 +103,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
    * */
   function setSuccessFee(uint8 newSuccessFee) external onlyOwner whenPaused {
     require(poolInfo.successFee != newSuccessFee, "this fee is already set");
-    require(newSuccessFee <= 50, "new invest fee is too big");
+    require(newSuccessFee <= 50, "new success fee is too big");
 
     poolInfo.successFee = newSuccessFee;
   }

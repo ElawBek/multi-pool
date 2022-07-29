@@ -9,6 +9,7 @@ import {
   WETH,
   DAI,
   UNI,
+  USDC,
   DAI_OWNER_FROM_MAINNET,
 } from "./constants";
 
@@ -38,22 +39,26 @@ export async function deployDaiPoolFixture() {
 
   await unlockAccount(alice, bob);
 
+  // DAI - pool
+  // DAI - ETH 3000 fee
+  // DAI - USDC 100 fee
+  // DAI - UNI 3000 fee
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    [3000, 3000]
+    [3000, 100, 3000]
   );
 
   const daiPool = await new Pool__factory(owner).deploy(
-    DAI,
-    owner.address,
-    10,
-    10,
-    uniswapExchange.address,
-    constants.AddressZero,
-    parseEther("1"),
-    "DAI-POOL",
-    [WETH, UNI],
-    [75, 25]
+    DAI, // entry asset
+    owner.address, // fee address
+    10, // invest fee
+    10, // success fee
+    uniswapExchange.address, // swap router
+    constants.AddressZero, // wrap above native currency (ETH)
+    parseEther("1"), // min invest
+    "DAI-POOL", // pool name
+    [WETH, USDC, UNI], // tokens
+    [50, 25, 25] // distributions
   );
 
   await uniswapExchange.transferOwnership(daiPool.address);
@@ -66,22 +71,26 @@ export async function investDaiFixture() {
 
   const { dai } = await unlockAccount(alice, bob);
 
+  // DAI - pool
+  // DAI - ETH 3000 fee
+  // DAI - USDC 100 fee
+  // DAI - UNI 3000 fee
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    [3000, 3000]
+    [3000, 100, 3000]
   );
 
   const daiPool = await new Pool__factory(owner).deploy(
-    DAI,
-    owner.address,
-    10,
-    10,
-    uniswapExchange.address,
-    constants.AddressZero,
-    parseEther("1"),
-    "DAI-POOL",
-    [WETH, UNI],
-    [75, 25]
+    DAI, // entry asset
+    owner.address, // fee address
+    10, // invest fee
+    10, // success fee
+    uniswapExchange.address, // swap router
+    constants.AddressZero, //  wrap above native currency (ETH)
+    parseEther("1"), // min invest
+    "DAI-POOL", // pool name
+    [WETH, USDC, UNI], // tokens
+    [50, 25, 25] // distributions
   );
 
   await uniswapExchange.transferOwnership(daiPool.address);

@@ -8,6 +8,7 @@ import {
   WETH,
   WMATIC,
   USDC,
+  USDT,
   USDC_OWNER_FROM_MAINNET,
 } from "./constants";
 
@@ -41,22 +42,27 @@ export async function deployUsdcPoolFixture() {
 
   await unlockAccount(alice, bob);
 
+  // USDC - 6 decimals
+  // USDC - pool
+  // USDC - WETH 500 fee
+  // USDC - MATIC 500 fee
+  // USDC - USDT 500 fee
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    [3000, 3000]
+    [500, 500, 500]
   );
 
   const usdcPool = await new Pool__factory(owner).deploy(
-    USDC,
-    owner.address,
-    10,
-    10,
-    uniswapExchange.address,
-    constants.AddressZero,
-    BigNumber.from(10 ** 6),
-    "USDC_POOL",
-    [WETH, WMATIC],
-    [75, 25]
+    USDC, // entry asset
+    owner.address, // fee address
+    10, // invest fee
+    10, // success fee
+    uniswapExchange.address, // swap router
+    constants.AddressZero, // wrap above native currency (ETH)
+    BigNumber.from(10 ** 6), // min invest
+    "USDC_POOL", // pool name
+    [WETH, WMATIC, USDT], // tokens
+    [50, 25, 25] // distributions
   );
 
   await uniswapExchange.transferOwnership(usdcPool.address);
@@ -69,22 +75,26 @@ export async function investUsdcFixture() {
 
   const { usdc } = await unlockAccount(alice, bob);
 
+  // USDC - pool
+  // USDC - WETH 500 fee
+  // USDC - MATIC 500 fee
+  // USDC - USDT 500 fee
   const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
     ROUTER_ADDRESS,
-    [3000, 3000]
+    [500, 500, 500]
   );
 
   const usdcPool = await new Pool__factory(owner).deploy(
-    USDC,
-    owner.address,
-    10,
-    10,
-    uniswapExchange.address,
-    constants.AddressZero,
-    BigNumber.from(10 ** 6),
-    "USDC_POOL",
-    [WETH, WMATIC],
-    [75, 25]
+    USDC, // entry asset
+    owner.address, // fee address
+    10, // invest fee
+    10, // success fee
+    uniswapExchange.address, // swap router
+    constants.AddressZero, // wrap above native currency (ETH)
+    BigNumber.from(10 ** 6), // min invest
+    "USDC_POOL", // pool name
+    [WETH, WMATIC, USDT], // tokens
+    [50, 25, 25] // distributions
   );
 
   await uniswapExchange.transferOwnership(usdcPool.address);

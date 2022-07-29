@@ -7,5 +7,9 @@ export {
   UNI,
   DAI_OWNER_FROM_MAINNET,
 } from "./constants";
-export { deployMaticPoolFixture, investFixture } from "./ethPoolFixtures";
+export {
+  deployEthPoolFixture,
+  investFixture,
+  getSwapper,
+} from "./ethPoolFixtures";
 export { deployDaiPoolFixture, investDaiFixture } from "./ercPoolFixtures";

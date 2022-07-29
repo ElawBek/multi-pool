@@ -173,7 +173,7 @@ contract Pool is PoolStorage {
    * @dev reverts when investment not active.
    * @dev emits the `InvestmentWithdrawal` event.
    */
-  function withdraw(uint256 investmentId) external nonReentrant whenNotPaused {
+  function withdraw(uint256 investmentId) external nonReentrant {
     uint256 investCount = investmentIds[msg.sender];
     require(
       investmentId <= investCount && investCount > 0,
@@ -242,6 +242,7 @@ contract Pool is PoolStorage {
    *
    * @dev reverts when investmentId is not exist yet.
    * @dev reverts when investment not active.
+   * @dev reverts when the pool is on pause.
    * @dev emits the `ToggleRebalance` event.
    */
   function toggleRebalance(uint256 investmentId) external whenNotPaused {
@@ -273,6 +274,7 @@ contract Pool is PoolStorage {
    * @dev reverts when investmentId is not exist yet.
    * @dev reverts when investment not active.
    * @dev reverts when rebalance is not enabled.
+   * @dev reverts when the pool is on pause.
    * @dev emits the `Rebalanced` event.
    */
   function rebalance(uint256 investmentId) external nonReentrant whenNotPaused {

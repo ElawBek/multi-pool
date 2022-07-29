@@ -1,6 +1,6 @@
 export {
   getTokens,
-  AAVE,
+  USDT,
   ROUTER_ADDRESS,
   USDC,
   WETH,

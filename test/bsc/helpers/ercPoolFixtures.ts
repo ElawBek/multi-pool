@@ -44,16 +44,16 @@ export async function deployBusdPoolFixture() {
   );
 
   const busdPool = await new Pool__factory(owner).deploy(
-    BUSD,
-    owner.address,
-    10,
-    10,
-    pancakeExchange.address,
-    constants.AddressZero,
-    parseEther("1"),
-    "BUSD-POOL",
-    [WETH, WBNB, CAKE],
-    [50, 25, 25]
+    BUSD, // entry asset
+    owner.address, // fee address
+    10, // invest fee
+    10, // success fee
+    pancakeExchange.address, // swap router
+    constants.AddressZero, // wrap above native currency (BNB)
+    parseEther("1"), // min invest
+    "BUSD-POOL", // name
+    [WETH, WBNB, CAKE], // tokens
+    [50, 25, 25] // distribution
   );
 
   await pancakeExchange.transferOwnership(busdPool.address);
@@ -71,16 +71,16 @@ export async function investBusdFixture() {
   );
 
   const busdPool = await new Pool__factory(owner).deploy(
-    BUSD,
-    owner.address,
-    10,
-    10,
-    pancakeExchange.address,
-    constants.AddressZero,
-    parseEther("1"),
-    "BUSD-POOL",
-    [WETH, WBNB, CAKE],
-    [50, 25, 25]
+    BUSD, // entry asset
+    owner.address, // fee address
+    10, // invest fee
+    10, // success fee
+    pancakeExchange.address, // swap router
+    constants.AddressZero, // wrap above native currency (BNB)
+    parseEther("1"), // min invest
+    "BUSD-POOL", // name
+    [WETH, WBNB, CAKE], // tokens
+    [50, 25, 25] // distribution
   );
 
   await pancakeExchange.transferOwnership(busdPool.address);
