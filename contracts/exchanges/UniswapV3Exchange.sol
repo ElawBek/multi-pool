@@ -9,8 +9,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IExchange.sol";
 
 contract UniswapV3Exchange is IExchange, Ownable {
-  using TransferHelper for address;
-
   /// @notice UniswapV3 SwapRouter
   ISwapRouter public swapRouter;
 
@@ -58,7 +56,7 @@ contract UniswapV3Exchange is IExchange, Ownable {
       return swapRouter.exactInputSingle{ value: amount }(paramsForSwap);
     }
 
-    tokenIn.safeApprove(address(swapRouter), amount);
+    TransferHelper.safeApprove(tokenIn, address(swapRouter), amount);
     return swapRouter.exactInputSingle(paramsForSwap);
   }
 }

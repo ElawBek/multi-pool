@@ -10,8 +10,6 @@ import "../interfaces/IExchange.sol";
 
 /// @title PancakeExchange
 contract PancakeExchange is IExchange, Ownable {
-  using TransferHelper for address;
-
   /// @notice PancakeRouter
   IUniswapV2Router01 public immutable swapRouter;
 
@@ -47,7 +45,7 @@ contract PancakeExchange is IExchange, Ownable {
       return amountOut[1];
     }
 
-    tokenIn.safeApprove(address(swapRouter), amount);
+    TransferHelper.safeApprove(tokenIn, address(swapRouter), amount);
     amountOut = swapRouter.swapExactTokensForTokens(
       amount,
       0,

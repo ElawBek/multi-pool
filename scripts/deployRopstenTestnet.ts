@@ -12,7 +12,7 @@ async function main() {
 
   const uniswapExchange = await new UniswapV3Exchange__factory(signer).deploy(
     ROPSTEN_SWAP_ROUTER,
-    3000
+    [3000, 500]
   );
   await uniswapExchange.deployed();
 
@@ -25,8 +25,8 @@ async function main() {
     ROPSTEN_WETH,
     parseEther("0.1"),
     "ETH-POOL",
-    [ROPSTEN_UNI],
-    [100]
+    [ROPSTEN_UNI, ROPSTEN_UNI],
+    [55, 45]
   );
   await ethPool.deployed();
 
@@ -38,11 +38,11 @@ async function main() {
   await run("verify:verify", {
     address: uniswapExchange.address,
     contract: "contracts/exchanges/UniswapV3Exchange.sol:UniswapV3Exchange",
-    constructorArguments: [ROPSTEN_SWAP_ROUTER, 3000],
+    constructorArguments: [ROPSTEN_SWAP_ROUTER, [3000, 500]],
   });
 
   await run("verify:verify", {
-    address: ethPool.address,
+    address: "0xb90f2cD1a0937e885f328159c83f566be26bAE7D",
     contract: "contracts/Pool.sol:Pool",
     constructorArguments: [
       ROPSTEN_WETH,
@@ -52,8 +52,9 @@ async function main() {
       uniswapExchange.address,
       ROPSTEN_WETH,
       parseEther("0.1"),
-      [ROPSTEN_UNI],
-      [100],
+      "ETH-POOL",
+      [ROPSTEN_UNI, ROPSTEN_UNI],
+      [55, 45],
     ],
   });
 }

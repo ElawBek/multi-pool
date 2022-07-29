@@ -45,6 +45,9 @@ contract Pool is PoolStorage {
     validDistribution(_poolDistribution)
   {
     require(_poolTokens.length == _poolDistribution.length);
+    require(_min > 0, "new minInvest is 0");
+    require(_investFee <= 50, "new invest fee is too big");
+    require(_successFee <= 50, "new success fee is too big");
 
     poolInfo.entryAsset = _entryAsset;
     poolInfo.poolSize = uint8(_poolTokens.length);
