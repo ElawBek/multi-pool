@@ -4,12 +4,10 @@ pragma solidity ^0.8.9;
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-
 import "../interfaces/IExchange.sol";
 
 /// @title PancakeExchange
-contract PancakeExchange is IExchange, Ownable {
+contract PancakeExchange is IExchange {
   /// @notice PancakeRouter
   IUniswapV2Router01 public immutable swapRouter;
 
@@ -25,10 +23,10 @@ contract PancakeExchange is IExchange, Ownable {
     uint256 deadline,
     uint256 amount,
     address recipient,
-    uint256 index,
+    uint24 fee,
     bool inputIsNativeToken
-  ) external payable override onlyOwner returns (uint256) {
-    index;
+  ) external payable override returns (uint256) {
+    fee;
     address[] memory path = new address[](2);
     path[0] = tokenIn;
     path[1] = tokenOut;

@@ -12,15 +12,14 @@ import {
 export async function deployMaticPoolFixture() {
   const [owner, alice, bob] = await ethers.getSigners();
 
+  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
+    ROUTER_ADDRESS
+  );
+
   // MATIC - pool
   // MATIC - WETH 500 fee
   // MATIC - USDC 500 fee
   // MATIC - USDT 500 fee
-  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
-    ROUTER_ADDRESS,
-    [500, 500, 500]
-  );
-
   const maticPool = await new Pool__factory(owner).deploy(
     WMATIC, // entry asset
     owner.address, // fee address
@@ -30,11 +29,10 @@ export async function deployMaticPoolFixture() {
     WMATIC, // wrap above native currency (MATIC)
     parseEther("1"), // min invest
     "MATIC-POOL", // pool name
+    [500, 500, 500],
     [WETH, USDC, USDT], // tokens
     [50, 25, 25] // distribution
   );
-
-  await uniswapExchange.transferOwnership(maticPool.address);
 
   return { uniswapExchange, maticPool, owner, alice, bob };
 }
@@ -42,15 +40,14 @@ export async function deployMaticPoolFixture() {
 export async function investFixture() {
   const [owner, alice, bob] = await ethers.getSigners();
 
+  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
+    ROUTER_ADDRESS
+  );
+
   // MATIC - pool
   // MATIC - WETH 500 fee
   // MATIC - USDC 500 fee
   // MATIC - USDT 500 fee
-  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
-    ROUTER_ADDRESS,
-    [500, 500, 500]
-  );
-
   const maticPool = await new Pool__factory(owner).deploy(
     WMATIC, // entry asset
     owner.address, // fee address
@@ -60,11 +57,10 @@ export async function investFixture() {
     WMATIC, // wrap above native currency (MATIC)
     parseEther("1"), // min invest
     "MATIC-POOL", // pool name
+    [500, 500, 500],
     [WETH, USDC, USDT], // tokens
     [50, 25, 25] // distribution
   );
-  await uniswapExchange.transferOwnership(maticPool.address);
-
   await alice.sendTransaction({
     to: maticPool.address,
     value: parseEther("100"),

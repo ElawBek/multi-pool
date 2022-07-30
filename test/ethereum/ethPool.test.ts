@@ -14,7 +14,6 @@ import {
   UNI,
   getTokens,
   investFixture,
-  getSwapper,
 } from "./helpers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
@@ -30,6 +29,7 @@ describe("ETH - pool", () => {
   let dai: IERC20;
   let usdc: IERC20;
   let uni: IERC20;
+  let weth: IERC20;
 
   async function getBalancesOf(address: string) {
     const balances = [];
@@ -41,7 +41,7 @@ describe("ETH - pool", () => {
   }
 
   beforeEach(() => {
-    ({ dai, usdc, uni } = getTokens(owner));
+    ({ dai, usdc, uni, weth } = getTokens(owner));
   });
 
   describe("State", async () => {
@@ -345,35 +345,25 @@ describe("ETH - pool", () => {
         .withArgs(alice.address, anyValue, 0);
     });
 
-    describe("Success fee", async () => {
-      let weth: IERC20;
+    it("SuccessFee", async () => {
+      // change the dai price in the uniswap
+      // after that in the withdraw user will get more eth
+      await uniswapExchange
+        .connect(alice)
+        .swap(
+          weth.address,
+          dai.address,
+          (await time.latest()) + 1000,
+          parseEther("5000"),
+          alice.address,
+          3000,
+          true,
+          { value: parseEther("5000") }
+        );
 
-      beforeEach(async () => {
-        ({ weth } = getTokens(alice));
-      });
-
-      it("SuccessFee", async () => {
-        const { uniswapExchangeHelper } = await getSwapper(alice);
-
-        // change the dai price in the uniswap
-        // after that in the withdraw user will get more eth
-        await uniswapExchangeHelper
-          .connect(alice)
-          .swap(
-            weth.address,
-            dai.address,
-            (await time.latest()) + 1000,
-            parseEther("5000"),
-            alice.address,
-            0,
-            true,
-            { value: parseEther("5000") }
-          );
-
-        await ethPool.connect(alice).withdraw(0);
-        // success fee was paid
-        expect((await ethPool.poolData()).totalSuccessFee).to.not.eq(0);
-      });
+      await ethPool.connect(alice).withdraw(0);
+      // success fee was paid
+      expect((await ethPool.poolData()).totalSuccessFee).to.not.eq(0);
     });
 
     describe("Non-active investment", () => {

@@ -13,15 +13,14 @@ import {
 export async function deployEthPoolFixture() {
   const [owner, alice, bob] = await ethers.getSigners();
 
+  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
+    ROUTER_ADDRESS
+  );
+
   // ETH - pool
   // ETH - DAI 3000 fee  0.3%
   // ETH - USDC 500 fee  0.05%
   // ETH - UNI 3000 fee  0.3%
-  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
-    ROUTER_ADDRESS,
-    [3000, 500, 3000]
-  );
-
   const ethPool = await new Pool__factory(owner).deploy(
     WETH, // entry asset
     owner.address, // fee address
@@ -31,11 +30,10 @@ export async function deployEthPoolFixture() {
     WETH, //  wrap above native currency (ETH)
     parseEther("1"), // min invest
     "ETH-POOL", // pool name
+    [3000, 500, 3000],
     [DAI, USDC, UNI], // tokens
     [50, 25, 25] // distributions
   );
-
-  await uniswapExchange.transferOwnership(ethPool.address);
 
   return { uniswapExchange, ethPool, owner, alice, bob };
 }
@@ -43,15 +41,14 @@ export async function deployEthPoolFixture() {
 export async function investFixture() {
   const [owner, alice, bob] = await ethers.getSigners();
 
+  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
+    ROUTER_ADDRESS
+  );
+
   // ETH - pool
   // ETH - DAI 3000 fee  0.3%
   // ETH - USDC 500 fee  0.05%
   // ETH - UNI 3000 fee  0.3%
-  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
-    ROUTER_ADDRESS,
-    [3000, 500, 3000]
-  );
-
   const ethPool = await new Pool__factory(owner).deploy(
     WETH, // entry asset
     owner.address, // fee address
@@ -61,11 +58,10 @@ export async function investFixture() {
     WETH, //  wrap above native currency (ETH)
     parseEther("1"), // min invest
     "ETH-POOL", // pool name
+    [3000, 500, 3000],
     [DAI, USDC, UNI], // tokens
     [50, 25, 25] // distributions
   );
-
-  await uniswapExchange.transferOwnership(ethPool.address);
 
   await alice.sendTransaction({
     to: ethPool.address,
@@ -78,12 +74,4 @@ export async function investFixture() {
   });
 
   return { uniswapExchange, ethPool, owner, alice, bob };
-}
-
-export async function getSwapper(alice: SignerWithAddress) {
-  const uniswapExchangeHelper = await new UniswapV3Exchange__factory(
-    alice
-  ).deploy(ROUTER_ADDRESS, [3000]);
-
-  return { uniswapExchangeHelper };
 }

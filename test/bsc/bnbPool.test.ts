@@ -14,7 +14,6 @@ import {
   CAKE,
   getTokens,
   investFixture,
-  getSwapper,
 } from "./helpers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
@@ -30,6 +29,7 @@ describe("BUSD - pool", () => {
   let busd: IERC20;
   let weth: IERC20;
   let cake: IERC20;
+  let wbnb: IERC20;
 
   async function getBalancesOf(address: string) {
     const balances = [];
@@ -41,7 +41,7 @@ describe("BUSD - pool", () => {
   }
 
   beforeEach(() => {
-    ({ busd, weth, cake } = getTokens(owner));
+    ({ busd, weth, cake, wbnb } = getTokens(owner));
   });
 
   describe("State", async () => {
@@ -339,6 +339,27 @@ describe("BUSD - pool", () => {
         .withArgs(alice.address, anyValue, 0);
     });
 
+    it("SuccessFee", async () => {
+      // change the dai price in the pancake
+      // after that in the withdraw user will get more bnb
+      await pancakeExchange
+        .connect(alice)
+        .swap(
+          wbnb.address,
+          weth.address,
+          (await time.latest()) + 1000,
+          parseEther("5000"),
+          alice.address,
+          0,
+          true,
+          { value: parseEther("5000") }
+        );
+
+      await bnbPool.connect(alice).withdraw(0);
+      // success fee was paid
+      expect((await bnbPool.poolData()).totalSuccessFee).to.not.eq(0);
+    });
+
     describe("Non-active investment", () => {
       beforeEach(async () => {
         await bnbPool.connect(alice).withdraw(0);
@@ -364,37 +385,6 @@ describe("BUSD - pool", () => {
         await expect(bnbPool.connect(alice).rebalance(0)).to.revertedWith(
           "investment not active"
         );
-      });
-    });
-
-    describe("Success fee", async () => {
-      let wbnb: IERC20;
-
-      beforeEach(async () => {
-        ({ wbnb, weth } = getTokens(alice));
-      });
-
-      it("SuccessFee", async () => {
-        const { pancakeExchangeHelper } = await getSwapper(alice);
-
-        // change the dai price in the pancake
-        // after that in the withdraw user will get more bnb
-        await pancakeExchangeHelper
-          .connect(alice)
-          .swap(
-            wbnb.address,
-            weth.address,
-            (await time.latest()) + 1000,
-            parseEther("5000"),
-            alice.address,
-            0,
-            true,
-            { value: parseEther("5000") }
-          );
-
-        await bnbPool.connect(alice).withdraw(0);
-        // success fee was paid
-        expect((await bnbPool.poolData()).totalSuccessFee).to.not.eq(0);
       });
     });
   });

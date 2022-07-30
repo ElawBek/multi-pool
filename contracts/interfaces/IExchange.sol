@@ -8,7 +8,7 @@ interface IExchange {
     uint256 deadline,
     uint256 amount,
     address recipient,
-    uint256 index,
+    uint24 fee,
     bool inputIsNativeToken
   ) external payable returns (uint256);
 }

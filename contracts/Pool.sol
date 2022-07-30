@@ -20,6 +20,7 @@ contract Pool is PoolStorage {
    * @param wrapOfNativeToken_ address to check if entryAsset is a native blockchain token or not.
    * @param _min the minimum possible amount of tokens for investment.
    * @param _name the name of the token pool (e.g. TokenName-pool).
+   * @param _fees - fee of each pool. (If pancake - empty array)
    * @param _poolTokens the addresses of the tokens to which the entryAsset will be exchanged.
    * @param _poolDistribution Asset allocation. The percentage of the pool's asset allocation.
 
@@ -38,6 +39,7 @@ contract Pool is PoolStorage {
     address wrapOfNativeToken_,
     uint256 _min,
     string memory _name,
+    uint24[] memory _fees,
     address[] memory _poolTokens,
     uint8[] memory _poolDistribution
   )
@@ -54,6 +56,11 @@ contract Pool is PoolStorage {
     poolInfo.feeAddress = _feeAddress;
     poolInfo.investFee = _investFee;
     poolInfo.successFee = _successFee;
+
+    // an array must be not empty only when router - uniswap
+    if (_fees.length != 0) {
+      fees = _fees;
+    }
 
     name = _name;
     _minInvest = _min;
@@ -81,7 +88,7 @@ contract Pool is PoolStorage {
   /// @notice returns investment by user address and array index.
   /// @dev revets with not exists investments
   function investmentByUser(address investor, uint256 investmentId)
-    public
+    external
     view
     virtual
     returns (InvestmentData memory)
@@ -91,7 +98,7 @@ contract Pool is PoolStorage {
 
   /// @notice returns all investments by user address.
   function investmentsByUser(address investor)
-    public
+    external
     view
     virtual
     returns (InvestmentData[] memory)
@@ -197,6 +204,7 @@ contract Pool is PoolStorage {
       timestamp = block.timestamp + 1200; // 20 mins
       totalReceivedCurrency -= _investData.receivedCurrency;
     }
+    uint24[] memory _fees = fees;
 
     for (uint256 i; i < _poolInfo.poolSize; i++) {
       uint256 tokenBalance = _investData.tokenBalances[i];
@@ -204,7 +212,12 @@ contract Pool is PoolStorage {
         continue;
       }
 
-      uint256 amount = _tokensToEntryAsset(timestamp, tokenBalance, i);
+      uint256 amount = _tokensToEntryAsset(
+        timestamp,
+        tokenBalance,
+        i,
+        _fees.length == 0 ? 0 : _fees[0]
+      );
       unchecked {
         // overflow is not possible
         entryAssetAmount += amount;
@@ -304,12 +317,19 @@ contract Pool is PoolStorage {
       totalReceivedCurrency -= _investData.receivedCurrency;
     }
 
+    uint24[] memory _fees = fees;
+
     for (uint256 i; i < _poolInfo.poolSize; i++) {
       uint256 tokenBalance = _investData.tokenBalances[i];
       if (tokenBalance == 0) {
         continue;
       }
-      uint256 amount = _tokensToEntryAsset(timestamp, tokenBalance, i);
+      uint256 amount = _tokensToEntryAsset(
+        timestamp,
+        tokenBalance,
+        i,
+        _fees.length == 0 ? 0 : _fees[0]
+      );
 
       unchecked {
         // overflow is not possible
@@ -340,6 +360,7 @@ contract Pool is PoolStorage {
         _poolInfo.entryAsset,
         amountForToken,
         i,
+        _fees.length == 0 ? 0 : _fees[0],
         timestamp,
         false
       );

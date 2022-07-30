@@ -1,7 +1,12 @@
 import { ethers, run } from "hardhat";
+import { constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
-import { PancakeExchange__factory, Pool__factory } from "../typechain-types";
+import {
+  PancakeExchange__factory,
+  Pool__factory,
+  IERC20__factory,
+} from "../typechain-types";
 
 const TESTNET_WBNB = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
 const TESTNET_USDT = "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684";
@@ -26,14 +31,31 @@ async function main() {
     TESTNET_WBNB,
     parseEther("0.1"),
     "BNB-POOL",
+    [],
     [TESTNET_USDT, TESTNET_BUSD, TESTNET_DAI],
     [50, 25, 25]
   );
   await bnbPool.deployed();
 
-  const tx = await pancakeExchange
-    .connect(signer)
-    .transferOwnership(bnbPool.address);
+  const busdPool = await new Pool__factory(signer).deploy(
+    TESTNET_BUSD, // entry asset
+    signer.address, // fee address
+    10, // invest fee
+    10, // success fee
+    pancakeExchange.address, // swap router
+    constants.AddressZero, // wrap above native currency (BNB)
+    parseEther("1"), // min invest
+    "BUSD-POOL", // name
+    [], // empty fee array
+    [TESTNET_USDT, TESTNET_DAI, TESTNET_WBNB], // tokens
+    [50, 25, 25] // distribution
+  );
+  await busdPool.deployed();
+
+  const tx = await IERC20__factory.connect(TESTNET_BUSD, signer).approve(
+    busdPool.address,
+    constants.MaxUint256
+  );
   await tx.wait();
 
   await run("verify:verify", {
@@ -53,7 +75,27 @@ async function main() {
       pancakeExchange.address,
       TESTNET_WBNB,
       parseEther("0.1"),
+      "BNB-POOL",
+      [],
       [TESTNET_USDT, TESTNET_BUSD, TESTNET_DAI],
+      [50, 25, 25],
+    ],
+  });
+
+  await run("verify:verify", {
+    address: busdPool.address,
+    contract: "contracts/Pool.sol:Pool",
+    constructorArguments: [
+      TESTNET_BUSD,
+      signer.address,
+      10,
+      10,
+      pancakeExchange.address,
+      constants.AddressZero,
+      parseEther("1"),
+      "BUSD-POOL",
+      [],
+      [TESTNET_USDT, TESTNET_DAI, TESTNET_WBNB],
       [50, 25, 25],
     ],
   });

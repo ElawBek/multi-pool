@@ -39,15 +39,14 @@ export async function deployDaiPoolFixture() {
 
   await unlockAccount(alice, bob);
 
+  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
+    ROUTER_ADDRESS
+  );
+
   // DAI - pool
   // DAI - ETH 3000 fee
   // DAI - USDC 100 fee
   // DAI - UNI 3000 fee
-  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
-    ROUTER_ADDRESS,
-    [3000, 100, 3000]
-  );
-
   const daiPool = await new Pool__factory(owner).deploy(
     DAI, // entry asset
     owner.address, // fee address
@@ -57,11 +56,10 @@ export async function deployDaiPoolFixture() {
     constants.AddressZero, // wrap above native currency (ETH)
     parseEther("1"), // min invest
     "DAI-POOL", // pool name
+    [3000, 100, 3000],
     [WETH, USDC, UNI], // tokens
     [50, 25, 25] // distributions
   );
-
-  await uniswapExchange.transferOwnership(daiPool.address);
 
   return { uniswapExchange, daiPool, owner, alice, bob };
 }
@@ -71,29 +69,27 @@ export async function investDaiFixture() {
 
   const { dai } = await unlockAccount(alice, bob);
 
+  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
+    ROUTER_ADDRESS
+  );
+
   // DAI - pool
   // DAI - ETH 3000 fee
   // DAI - USDC 100 fee
   // DAI - UNI 3000 fee
-  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
-    ROUTER_ADDRESS,
-    [3000, 100, 3000]
-  );
-
   const daiPool = await new Pool__factory(owner).deploy(
     DAI, // entry asset
     owner.address, // fee address
     10, // invest fee
     10, // success fee
     uniswapExchange.address, // swap router
-    constants.AddressZero, //  wrap above native currency (ETH)
+    constants.AddressZero, // wrap above native currency (ETH)
     parseEther("1"), // min invest
     "DAI-POOL", // pool name
+    [3000, 100, 3000],
     [WETH, USDC, UNI], // tokens
     [50, 25, 25] // distributions
   );
-
-  await uniswapExchange.transferOwnership(daiPool.address);
 
   await dai.connect(alice).approve(daiPool.address, parseEther("1000"));
   await daiPool.connect(alice).invest(parseEther("1000"));

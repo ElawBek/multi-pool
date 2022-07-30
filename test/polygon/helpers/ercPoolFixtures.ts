@@ -42,16 +42,15 @@ export async function deployUsdcPoolFixture() {
 
   await unlockAccount(alice, bob);
 
+  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
+    ROUTER_ADDRESS
+  );
+
   // USDC - 6 decimals
   // USDC - pool
   // USDC - WETH 500 fee
   // USDC - MATIC 500 fee
   // USDC - USDT 500 fee
-  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
-    ROUTER_ADDRESS,
-    [500, 500, 500]
-  );
-
   const usdcPool = await new Pool__factory(owner).deploy(
     USDC, // entry asset
     owner.address, // fee address
@@ -61,11 +60,10 @@ export async function deployUsdcPoolFixture() {
     constants.AddressZero, // wrap above native currency (ETH)
     BigNumber.from(10 ** 6), // min invest
     "USDC_POOL", // pool name
+    [500, 500, 500],
     [WETH, WMATIC, USDT], // tokens
     [50, 25, 25] // distributions
   );
-
-  await uniswapExchange.transferOwnership(usdcPool.address);
 
   return { uniswapExchange, usdcPool, owner, alice, bob };
 }
@@ -75,15 +73,15 @@ export async function investUsdcFixture() {
 
   const { usdc } = await unlockAccount(alice, bob);
 
+  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
+    ROUTER_ADDRESS
+  );
+
+  // USDC - 6 decimals
   // USDC - pool
   // USDC - WETH 500 fee
   // USDC - MATIC 500 fee
   // USDC - USDT 500 fee
-  const uniswapExchange = await new UniswapV3Exchange__factory(owner).deploy(
-    ROUTER_ADDRESS,
-    [500, 500, 500]
-  );
-
   const usdcPool = await new Pool__factory(owner).deploy(
     USDC, // entry asset
     owner.address, // fee address
@@ -93,11 +91,10 @@ export async function investUsdcFixture() {
     constants.AddressZero, // wrap above native currency (ETH)
     BigNumber.from(10 ** 6), // min invest
     "USDC_POOL", // pool name
+    [500, 500, 500],
     [WETH, WMATIC, USDT], // tokens
     [50, 25, 25] // distributions
   );
-
-  await uniswapExchange.transferOwnership(usdcPool.address);
 
   await usdc
     .connect(alice)

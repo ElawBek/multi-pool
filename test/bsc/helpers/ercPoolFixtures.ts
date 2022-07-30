@@ -52,11 +52,10 @@ export async function deployBusdPoolFixture() {
     constants.AddressZero, // wrap above native currency (BNB)
     parseEther("1"), // min invest
     "BUSD-POOL", // name
+    [], // empty fee array
     [WETH, WBNB, CAKE], // tokens
     [50, 25, 25] // distribution
   );
-
-  await pancakeExchange.transferOwnership(busdPool.address);
 
   return { pancakeExchange, busdPool, owner, alice, bob };
 }
@@ -79,11 +78,10 @@ export async function investBusdFixture() {
     constants.AddressZero, // wrap above native currency (BNB)
     parseEther("1"), // min invest
     "BUSD-POOL", // name
+    [], // empty fee array
     [WETH, WBNB, CAKE], // tokens
     [50, 25, 25] // distribution
   );
-
-  await pancakeExchange.transferOwnership(busdPool.address);
 
   await busd.connect(alice).approve(busdPool.address, parseEther("1000"));
   await busdPool.connect(alice).invest(parseEther("1000"));

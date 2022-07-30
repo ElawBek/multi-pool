@@ -16,6 +16,18 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
   /// @notice address to check if entryAsset is a native blockchain token or not.
   address internal immutable _wrapOfNativeToken;
 
+  /**
+   * @notice fee of each pool
+   *
+   * @dev all pools on uniswap have the fee.
+   * e.g - pool entryAsset - poolInfo.poolTokens[i] - fee 3000 (3000 = 0.3%)
+   *       pool entryAsset - poolInfo.poolTokens[i+1] - fee 100 (100 = 0.01%)
+   *       pool entryAsset - poolInfo.poolTokens[i+2] - fee 10000 (10000 = 1%)
+   *       pool entryAsset - poolInfo.poolTokens[i+3] - fee 500 (500 = 0.05%)
+   * @dev if swapRouter - PancakeExchange - a fees array must be empty!
+   */
+  uint24[] public fees;
+
   /// @notice the name of the token pool.
   string public name;
   /// @notice the minimum possible amount of tokens for investment.
@@ -56,7 +68,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
    * @dev can be executed only by pool owner.
    * @dev emits `Paused` event.
    * */
-  function pause() public onlyOwner {
+  function pause() external onlyOwner {
     _pause();
   }
 
@@ -65,7 +77,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
    * @dev can be executed only by pool owner.
    * @dev emits `Unpaused` event.
    * */
-  function unpause() public onlyOwner {
+  function unpause() external onlyOwner {
     _unpause();
   }
 
@@ -177,6 +189,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
       // overflow is not possible
       timestamp = block.timestamp + 1200; // 20 mins
     }
+    uint24[] memory _fees = fees;
 
     for (uint256 i; i < _poolInfo.poolSize; i++) {
       uint256 amountForToken;
@@ -194,6 +207,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
         _poolInfo.entryAsset,
         amountForToken,
         i,
+        _fees.length == 0 ? 0 : _fees[0],
         timestamp,
         inputIsNativeToken
       );
@@ -244,6 +258,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
     address entryAssetAddress,
     uint256 amount,
     uint256 i,
+    uint24 fee,
     uint256 timestamp,
     bool inputIsNativeToken
   ) internal returns (uint256) {
@@ -255,7 +270,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
         timestamp,
         amount,
         address(this),
-        i,
+        fee,
         inputIsNativeToken
       );
       _poolTokensBalances[i] += tokenBalance;
@@ -274,7 +289,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
       timestamp,
       amount,
       address(this),
-      i,
+      fee,
       inputIsNativeToken
     );
     _poolTokensBalances[i] += tokenBalance;
@@ -286,7 +301,8 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
   function _tokensToEntryAsset(
     uint256 timestamp,
     uint256 tokenBalance,
-    uint256 i
+    uint256 i,
+    uint24 fee
   ) internal returns (uint256 outputAmountFromToken) {
     PoolInfo memory _poolInfo = poolInfo;
     TransferHelper.safeTransfer(
@@ -300,7 +316,7 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
       timestamp,
       tokenBalance,
       address(this),
-      i,
+      fee,
       false
     );
     _poolTokensBalances[i] -= tokenBalance;

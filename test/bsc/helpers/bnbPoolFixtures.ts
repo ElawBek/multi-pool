@@ -26,11 +26,10 @@ export async function deployBnbPoolFixture() {
     WBNB, // wrap above native currency (BNB)
     parseEther("1"), // min invest
     "BNB-POOL", // pool name
+    [], // empty fee array
     [WETH, BUSD, CAKE], // tokens
     [50, 25, 25] // distribution
   );
-
-  await pancakeExchange.transferOwnership(bnbPool.address);
 
   return { pancakeExchange, bnbPool, owner, alice, bob };
 }
@@ -51,11 +50,10 @@ export async function investFixture() {
     WBNB, // wrap above native currency (BNB)
     parseEther("1"), // min invest
     "BNB-POOL", // pool name
+    [], // empty fee array
     [WETH, BUSD, CAKE], // tokens
     [50, 25, 25] // distribution
   );
-
-  await pancakeExchange.transferOwnership(bnbPool.address);
 
   await alice.sendTransaction({
     to: bnbPool.address,
@@ -68,12 +66,4 @@ export async function investFixture() {
   });
 
   return { pancakeExchange, bnbPool, owner, alice, bob };
-}
-
-export async function getSwapper(alice: SignerWithAddress) {
-  const pancakeExchangeHelper = await new PancakeExchange__factory(
-    alice
-  ).deploy(ROUTER_ADDRESS);
-
-  return { pancakeExchangeHelper };
 }

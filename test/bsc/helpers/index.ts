@@ -7,9 +7,5 @@ export {
   WBNB,
   WETH,
 } from "./constants";
-export {
-  deployBnbPoolFixture,
-  investFixture,
-  getSwapper,
-} from "./bnbPoolFixtures";
+export { deployBnbPoolFixture, investFixture } from "./bnbPoolFixtures";
 export { deployBusdPoolFixture, investBusdFixture } from "./ercPoolFixtures";
