@@ -23,7 +23,7 @@ contract Pool is PoolStorage {
    * @param _fees - fee of each pool. (If pancake - empty array)
    * @param _poolTokens the addresses of the tokens to which the entryAsset will be exchanged.
    * @param _poolDistribution Asset allocation. The percentage of the pool's asset allocation.
-
+   *
    * @dev if entryAsset will be a native blockchain token - `_entryAsset` must be a wrapped token of it.
    * `_investFee` charged in entryAsset tokens (if entryAsset is the native blockchain token - fee will be in that).
    * `_investFee` & `_successFee` are calculated as hundredths of the amount of tokens.
@@ -106,6 +106,16 @@ contract Pool is PoolStorage {
     return _investmentDataByUser[investor];
   }
 
+  /// @notice returns investments count by user address.
+  function investmentCountByUser(address investor)
+    external
+    view
+    virtual
+    returns (uint256)
+  {
+    return _investmentDataByUser[investor].length;
+  }
+
   /// @notice returns address of entry asset.
   function entryAsset() external view returns (address) {
     return poolInfo.entryAsset;
@@ -184,7 +194,7 @@ contract Pool is PoolStorage {
    * @dev emits the `InvestmentWithdrawal` event.
    */
   function withdraw(uint256 investmentId) external nonReentrant {
-    uint256 investCount = investmentIds[msg.sender];
+    uint256 investCount = _investmentDataByUser[msg.sender].length;
     require(
       investmentId <= investCount && investCount > 0,
       "investment non-exists"
@@ -262,7 +272,7 @@ contract Pool is PoolStorage {
    * @dev emits the `ToggleRebalance` event.
    */
   function toggleRebalance(uint256 investmentId) external whenNotPaused {
-    uint256 investCount = investmentIds[msg.sender];
+    uint256 investCount = _investmentDataByUser[msg.sender].length;
     require(
       investmentId <= investCount && investCount > 0,
       "investment non-exists"
@@ -294,7 +304,7 @@ contract Pool is PoolStorage {
    * @dev emits the `Rebalanced` event.
    */
   function rebalance(uint256 investmentId) external nonReentrant whenNotPaused {
-    uint256 investCount = investmentIds[msg.sender];
+    uint256 investCount = _investmentDataByUser[msg.sender].length;
     require(
       investmentId <= investCount && investCount > 0,
       "investment non-exists"

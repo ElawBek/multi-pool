@@ -34,11 +34,17 @@ hardhat: {
 },
 ```
 
-и в терминале:
+и в одном терминале:
 
+```shell
+npx hardhat node
 ```
-npx hardhat test test/bsc/bnbPool.test.ts
-npx hardhat test test/bsc/busdPool.test.ts
+
+в другом:
+
+```shell
+npx hardhat test test/bsc/bnbPool.test.ts --network localhost
+npx hardhat test test/bsc/busdPool.test.ts --network localhost
 ```
 
 ---
@@ -57,11 +63,17 @@ hardhat: {
 },
 ```
 
-и в терминале:
+и в одном терминале:
 
+```shell
+npx hardhat node
 ```
-npx hardhat test test/ethereum/daiPool.test.ts
-npx hardhat test test/ethereum/ethPool.test.ts
+
+в другом:
+
+```shell
+npx hardhat test test/ethereum/daiPool.test.ts --network localhost
+npx hardhat test test/ethereum/ethPool.test.ts --network localhost
 ```
 
 ---
@@ -80,9 +92,15 @@ hardhat: {
 },
 ```
 
-и в терминале:
+и в одном терминале:
 
+```shell
+npx hardhat node
 ```
-npx hardhat test test/polygon/maticPool.test.ts
-npx hardhat test test/polygon/usdcPool.test.ts
+
+в другом:
+
+```shell
+npx hardhat test test/polygon/maticPool.test.ts --network localhost
+npx hardhat test test/polygon/usdcPool.test.ts --network localhost
 ```

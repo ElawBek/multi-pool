@@ -46,8 +46,6 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
 
   /// @notice investment data.
   mapping(address => InvestmentData[]) internal _investmentDataByUser;
-  /// @notice user's counter of investments.
-  mapping(address => uint256) public investmentIds;
 
   constructor(address swapRouter_, address wrapOfNativeToken_) {
     _swapRouter = IExchange(swapRouter_);
@@ -222,11 +220,6 @@ contract PoolStorage is Ownable, IPool, Pausable, ReentrancyGuard {
         active: true
       })
     );
-
-    unchecked {
-      // overflow is not possible
-      investmentIds[investor]++;
-    }
 
     if (managerFee > 0) {
       unchecked {
