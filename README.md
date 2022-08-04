@@ -1,4 +1,4 @@
-Начало работы:
+## Installation:
 
 ```shell
 git clone https://github.com/ElawBek/multi-pool.git .
@@ -6,9 +6,9 @@ npm install
 npx hardhat compile
 ```
 
-Для тестов необходимо создать файл .env и ввести необходимые параметры, как в .env.example:
+For the tests, you need to create an .env file and enter the necessary parameters, as in .env.example
 
-(Polygon & ethereum - ключи с alchemy)
+(Polygon & ethereum - alchemy keys)
 
 (BSC - url mainnet)
 
@@ -20,7 +20,9 @@ BSC_URL=
 
 ---
 
-для тестов на BSC в файле hardhat.config.ts:
+## Tests
+
+BSC - hardhat.config.ts:
 
 ```typescript
 hardhat: {
@@ -34,13 +36,13 @@ hardhat: {
 },
 ```
 
-и в одном терминале:
+start node:
 
 ```shell
 npx hardhat node
 ```
 
-в другом:
+in another terminal:
 
 ```shell
 npx hardhat test test/bsc/bnbPool.test.ts --network localhost
@@ -49,7 +51,7 @@ npx hardhat test test/bsc/busdPool.test.ts --network localhost
 
 ---
 
-для тестов на ehtereum в файле hardhat.config.ts:
+ehtereum - hardhat.config.ts:
 
 ```typescript
 hardhat: {
@@ -63,13 +65,13 @@ hardhat: {
 },
 ```
 
-и в одном терминале:
+start node:
 
 ```shell
 npx hardhat node
 ```
 
-в другом:
+in another terminal:
 
 ```shell
 npx hardhat test test/ethereum/daiPool.test.ts --network localhost
@@ -78,7 +80,7 @@ npx hardhat test test/ethereum/ethPool.test.ts --network localhost
 
 ---
 
-для тестов на ehtereum в файле hardhat.config.ts:
+polygon - hardhat.config.ts:
 
 ```typescript
 hardhat: {
@@ -92,13 +94,13 @@ hardhat: {
 },
 ```
 
-и в одном терминале:
+start node:
 
 ```shell
 npx hardhat node
 ```
 
-в другом:
+in another terminal:
 
 ```shell
 npx hardhat test test/polygon/maticPool.test.ts --network localhost
